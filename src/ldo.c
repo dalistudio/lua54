@@ -1,6 +1,7 @@
 /*
 ** $Id: ldo.c $
 ** Stack and Call structure of Lua
+** Lua的堆栈和调用结构
 ** See Copyright Notice in lua.h
 */
 

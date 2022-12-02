@@ -1,6 +1,7 @@
 /*
 ** $Id: ltm.h $
 ** Tag methods
+** 标记方法
 ** See Copyright Notice in lua.h
 */
 
@@ -14,6 +15,7 @@
 /*
 * WARNING: if you change the order of this enumeration,
 * grep "ORDER TM" and "ORDER OP"
+* 警告：如果更改此枚举的顺序，请使用 grep "ORDER TM" 和 "ORDER OP"
 */
 typedef enum {
   TM_INDEX,
@@ -21,7 +23,7 @@ typedef enum {
   TM_GC,
   TM_MODE,
   TM_LEN,
-  TM_EQ,  /* last tag method with fast access */
+  TM_EQ,  /* last tag method with fast access 具有快速访问的最后一个标记方法 */
   TM_ADD,
   TM_SUB,
   TM_MUL,
@@ -41,7 +43,7 @@ typedef enum {
   TM_CONCAT,
   TM_CALL,
   TM_CLOSE,
-  TM_N		/* number of elements in the enum */
+  TM_N		/* number of elements in the enum 枚举中的元素数 */
 } TMS;
 
 
@@ -50,6 +52,8 @@ typedef enum {
 ** in the flag of a (meta)table means the metatable does not have the
 ** corresponding metamethod field. (Bit 7 of the flag is used for
 ** 'isrealasize'.)
+** 在所有快速访问方法中使用1掩码。(元)表的标志中的任何一位中的1表示元表没有相应的元方法字段。
+** （标志的第7位用于'isrealasize'）
 */
 #define maskflags	(~(~0u << (TM_EQ + 1)))
 
@@ -57,6 +61,8 @@ typedef enum {
 /*
 ** Test whether there is no tagmethod.
 ** (Because tagmethods use raw accesses, the result may be an "empty" nil.)
+** 测试是否没有标记方法
+** （因为标记方法使用原始访问，结果可能时"空" NIL）
 */
 #define notm(tm)	ttisnil(tm)
 

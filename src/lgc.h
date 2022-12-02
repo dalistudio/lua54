@@ -1,6 +1,7 @@
 /*
 ** $Id: lgc.h $
 ** Garbage Collector
+** 垃圾收集器
 ** See Copyright Notice in lua.h
 */
 
@@ -27,11 +28,12 @@
 
 /*
 ** Possible states of the Garbage Collector
+** 垃圾收集器的可用状态
 */
-#define GCSpropagate	0
-#define GCSenteratomic	1
-#define GCSatomic	2
-#define GCSswpallgc	3
+#define GCSpropagate	0 // 传播
+#define GCSenteratomic	1 // 原子内部
+#define GCSatomic	2 // 原子
+#define GCSswpallgc	3 // 
 #define GCSswpfinobj	4
 #define GCSswptobefnz	5
 #define GCSswpend	6

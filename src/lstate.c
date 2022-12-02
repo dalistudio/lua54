@@ -1,6 +1,7 @@
 /*
 ** $Id: lstate.c $
 ** Global State
+** 全局状态机
 ** See Copyright Notice in lua.h
 */
 

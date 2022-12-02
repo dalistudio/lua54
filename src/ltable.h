@@ -1,6 +1,7 @@
 /*
 ** $Id: ltable.h $
 ** Lua tables (hash)
+** Lua 表（散列）
 ** See Copyright Notice in lua.h
 */
 
@@ -19,19 +20,27 @@
 ** Clear all bits of fast-access metamethods, which means that the table
 ** may have any of these metamethods. (First access that fails after the
 ** clearing will set the bit again.)
+** 清除快速访问元方法的所有位，这意味着表中可能有任何这些元方法。
+**（清除后第一次访问失败将在此设置位）
 */
 #define invalidateTMcache(t)	((t)->flags &= ~maskflags)
 
 
-/* true when 't' is using 'dummynode' as its hash part */
+/* 
+   true when 't' is using 'dummynode' as its hash part 
+   当't'使用'dummynode'作为其哈希部分时为true
+*/
 #define isdummy(t)		((t)->lastfree == NULL)
 
 
-/* allocated size for hash nodes */
+/* allocated size for hash nodes 为哈希节点分配的大小 */
 #define allocsizenode(t)	(isdummy(t) ? 0 : sizenode(t))
 
 
-/* returns the Node, given the value of a table entry */
+/* 
+   returns the Node, given the value of a table entry 
+   返回给定表项值的节点
+*/
 #define nodefromval(v)	cast(Node *, (v))
 
 

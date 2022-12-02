@@ -1,6 +1,7 @@
 /*
 ** $Id: lprefix.h $
 ** Definitions for Lua code that must come before any other header file
+** 必须在任何其他头文件之前出现的Lua代码的定义
 ** See Copyright Notice in lua.h
 */
 
@@ -21,6 +22,7 @@
 
 /*
 ** Allows manipulation of large files in gcc and some other compilers
+** 允许在gcc和一些其他编译器中操作大型文件
 */
 #if !defined(LUA_32BITS) && !defined(_FILE_OFFSET_BITS)
 #define _LARGEFILE_SOURCE       1

@@ -1,6 +1,7 @@
 /*
 ** $Id: lauxlib.h $
 ** Auxiliary functions for building Lua libraries
+** 构建Lua库的辅助功能
 ** See Copyright Notice in lua.h
 */
 
@@ -16,22 +17,30 @@
 #include "lua.h"
 
 
-/* global table */
+/* global table 全局表 */
 #define LUA_GNAME	"_G"
 
 
 typedef struct luaL_Buffer luaL_Buffer;
 
 
-/* extra error code for 'luaL_loadfilex' */
+/* extra error code for 'luaL_loadfilex'
+   'luaL_loadfilex' 的额外错误代码
+*/
 #define LUA_ERRFILE     (LUA_ERRERR+1)
 
 
-/* key, in the registry, for table of loaded modules */
+/* 
+   key, in the registry, for table of loaded modules 
+   注册表中已加载模块表的键
+*/
 #define LUA_LOADED_TABLE	"_LOADED"
 
 
-/* key, in the registry, for table of preloaded loaders */
+/* 
+   key, in the registry, for table of preloaded loaders 
+   注册表中的键，用于预加载的加载程序表
+*/
 #define LUA_PRELOAD_TABLE	"_PRELOAD"
 
 
@@ -82,7 +91,7 @@ LUALIB_API int (luaL_fileresult) (lua_State *L, int stat, const char *fname);
 LUALIB_API int (luaL_execresult) (lua_State *L, int stat);
 
 
-/* predefined references */
+/* predefined references 预定义的引用 */
 #define LUA_NOREF       (-2)
 #define LUA_REFNIL      (-1)
 
@@ -119,7 +128,7 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 
 /*
 ** ===============================================================
-** some useful macros
+** some useful macros 一些有用的宏
 ** ===============================================================
 */
 
@@ -157,17 +166,22 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 /*
 ** Perform arithmetic operations on lua_Integer values with wrap-around
 ** semantics, as the Lua core does.
+** 像Lua核心一样，使用环绕语义对 lua_Integer 值执行算术运算。
 */
 #define luaL_intop(op,v1,v2)  \
 	((lua_Integer)((lua_Unsigned)(v1) op (lua_Unsigned)(v2)))
 
 
-/* push the value used to represent failure/error */
+/* 
+   push the value used to represent failure/error 
+   推送用于表示故障/错误的值
+*/
 #define luaL_pushfail(L)	lua_pushnil(L)
 
 
 /*
 ** Internal assertions for in-house debugging
+** 内部调试的内部断言
 */
 #if !defined(lua_assert)
 
@@ -185,17 +199,18 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 /*
 ** {======================================================
 ** Generic Buffer manipulation
+** 通用缓冲区操作
 ** =======================================================
 */
 
 struct luaL_Buffer {
-  char *b;  /* buffer address */
-  size_t size;  /* buffer size */
-  size_t n;  /* number of characters in buffer */
+  char *b;  /* buffer address 缓冲地址 */
+  size_t size;  /* buffer size 缓冲大小 */
+  size_t n;  /* number of characters in buffer 缓冲区中的字节数 */
   lua_State *L;
   union {
-    LUAI_MAXALIGN;  /* ensure maximum alignment for buffer */
-    char b[LUAL_BUFFERSIZE];  /* initial buffer */
+    LUAI_MAXALIGN;  /* ensure maximum alignment for buffer 确保缓冲区的最大对齐 */
+    char b[LUAL_BUFFERSIZE];  /* initial buffer 初始化缓冲区 */
   } init;
 };
 
@@ -229,7 +244,8 @@ LUALIB_API char *(luaL_buffinitsize) (lua_State *L, luaL_Buffer *B, size_t sz);
 
 /*
 ** {======================================================
-** File handles for IO library
+** File handles for IO library 
+** IO库的文件句柄
 ** =======================================================
 */
 
@@ -237,14 +253,16 @@ LUALIB_API char *(luaL_buffinitsize) (lua_State *L, luaL_Buffer *B, size_t sz);
 ** A file handle is a userdata with metatable 'LUA_FILEHANDLE' and
 ** initial structure 'luaL_Stream' (it may contain other fields
 ** after that initial structure).
+** 文件句柄是具有元表 'LUA_FILEHANDLE' 和初始化'luaL_Stream'结构 的用户数据，
+** （它可能包含该初始结构之后的其他字段）
 */
 
 #define LUA_FILEHANDLE          "FILE*"
 
 
 typedef struct luaL_Stream {
-  FILE *f;  /* stream (NULL for incompletely created streams) */
-  lua_CFunction closef;  /* to close stream (NULL for closed streams) */
+  FILE *f;  /* stream (NULL for incompletely created streams) 流（对于未完全创建的流为NULL）*/
+  lua_CFunction closef;  /* to close stream (NULL for closed streams) 关闭流（关闭流为NULL）*/
 } luaL_Stream;
 
 /* }====================================================== */
@@ -252,20 +270,21 @@ typedef struct luaL_Stream {
 /*
 ** {==================================================================
 ** "Abstraction Layer" for basic report of messages and errors
+** 消息和错误基本报告的“抽象层”
 ** ===================================================================
 */
 
-/* print a string */
+/* print a string 打印字符串 */
 #if !defined(lua_writestring)
 #define lua_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
 #endif
 
-/* print a newline and flush the output */
+/* print a newline and flush the output 打印新行并刷新输出 */
 #if !defined(lua_writeline)
 #define lua_writeline()        (lua_writestring("\n", 1), fflush(stdout))
 #endif
 
-/* print an error message */
+/* print an error message 打印错误消息 */
 #if !defined(lua_writestringerror)
 #define lua_writestringerror(s,p) \
         (fprintf(stderr, (s), (p)), fflush(stderr))
@@ -277,6 +296,7 @@ typedef struct luaL_Stream {
 /*
 ** {============================================================
 ** Compatibility with deprecated conversions
+** 兼容不推荐的转换
 ** =============================================================
 */
 #if defined(LUA_COMPAT_APIINTCASTS)

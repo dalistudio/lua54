@@ -1,6 +1,7 @@
 /*
 ** $Id: lua.c $
 ** Lua stand-alone interpreter
+** Lua 独立解释器
 ** See Copyright Notice in lua.h
 */
 
@@ -22,11 +23,11 @@
 
 
 #if !defined(LUA_PROGNAME)
-#define LUA_PROGNAME		"lua"
+#define LUA_PROGNAME		"lua" // 程序名
 #endif
 
 #if !defined(LUA_INIT_VAR)
-#define LUA_INIT_VAR		"LUA_INIT"
+#define LUA_INIT_VAR		"LUA_INIT" // 程序初始化
 #endif
 
 #define LUA_INITVARVERSION	LUA_INIT_VAR LUA_VERSUFFIX
@@ -41,12 +42,13 @@ static const char *progname = LUA_PROGNAME;
 
 /*
 ** Use 'sigaction' when available.
+** 如果可用，请使用'sigaction'
 */
 static void setsignal (int sig, void (*handler)(int)) {
   struct sigaction sa;
   sa.sa_handler = handler;
   sa.sa_flags = 0;
-  sigemptyset(&sa.sa_mask);  /* do not mask any signal */
+  sigemptyset(&sa.sa_mask);  /* do not mask any signal 不屏蔽任何信号 */
   sigaction(sig, &sa, NULL);
 }
 
@@ -59,10 +61,11 @@ static void setsignal (int sig, void (*handler)(int)) {
 
 /*
 ** Hook set by signal function to stop the interpreter.
+** 由信号函数设置的钩子，用于停止解释器
 */
 static void lstop (lua_State *L, lua_Debug *ar) {
-  (void)ar;  /* unused arg. */
-  lua_sethook(L, NULL, 0, 0);  /* reset hook */
+  (void)ar;  /* unused arg. 未使用参数 */
+  lua_sethook(L, NULL, 0, 0);  /* reset hook 重置钩子 */
   luaL_error(L, "interrupted!");
 }
 

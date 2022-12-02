@@ -1,6 +1,7 @@
 /*
 ** $Id: ltm.c $
 ** Tag methods
+** 标记方法
 ** See Copyright Notice in lua.h
 */
 
@@ -31,7 +32,7 @@ LUAI_DDEF const char *const luaT_typenames_[LUA_TOTALTYPES] = {
   "no value",
   "nil", "boolean", udatatypename, "number",
   "string", "table", "function", udatatypename, "thread",
-  "upvalue", "proto" /* these last cases are used for tests only */
+  "upvalue", "proto" /* these last cases are used for tests only 最后这些案例仅用于测试 */
 };
 
 
@@ -48,7 +49,7 @@ void luaT_init (lua_State *L) {
   int i;
   for (i=0; i<TM_N; i++) {
     G(L)->tmname[i] = luaS_new(L, luaT_eventname[i]);
-    luaC_fix(L, obj2gco(G(L)->tmname[i]));  /* never collect these names */
+    luaC_fix(L, obj2gco(G(L)->tmname[i]));  /* never collect these names 永远不要收集这些名字 */
   }
 }
 
@@ -56,12 +57,13 @@ void luaT_init (lua_State *L) {
 /*
 ** function to be used with macro "fasttm": optimized for absence of
 ** tag methods
+** 用于宏"fasttm"的函数：针对缺少标记方法进行了优化。
 */
 const TValue *luaT_gettm (Table *events, TMS event, TString *ename) {
   const TValue *tm = luaH_getshortstr(events, ename);
   lua_assert(event <= TM_EQ);
-  if (notm(tm)) {  /* no tag method? */
-    events->flags |= cast_byte(1u<<event);  /* cache this fact */
+  if (notm(tm)) {  /* no tag method? 没有标记方法？ */
+    events->flags |= cast_byte(1u<<event);  /* cache this fact 缓存此事实 */
     return NULL;
   }
   else return tm;
@@ -87,28 +89,32 @@ const TValue *luaT_gettmbyobj (lua_State *L, const TValue *o, TMS event) {
 /*
 ** Return the name of the type of an object. For tables and userdata
 ** with metatable, use their '__name' metafield, if present.
+** 返回对象类型的名称。对于具有元表的表和用户数据，请使用'__name'元字段（如果存在）
 */
 const char *luaT_objtypename (lua_State *L, const TValue *o) {
   Table *mt;
   if ((ttistable(o) && (mt = hvalue(o)->metatable) != NULL) ||
       (ttisfulluserdata(o) && (mt = uvalue(o)->metatable) != NULL)) {
     const TValue *name = luaH_getshortstr(mt, luaS_new(L, "__name"));
-    if (ttisstring(name))  /* is '__name' a string? */
+    if (ttisstring(name))  /* is '__name' a string? ，'__name'是字符串吗？*/
       return getstr(tsvalue(name));  /* use it as type name */
   }
-  return ttypename(ttype(o));  /* else use standard type name */
+  return ttypename(ttype(o));  /* else use standard type name 否则使用标准类型名称 */
 }
 
 
 void luaT_callTM (lua_State *L, const TValue *f, const TValue *p1,
                   const TValue *p2, const TValue *p3) {
   StkId func = L->top;
-  setobj2s(L, func, f);  /* push function (assume EXTRA_STACK) */
-  setobj2s(L, func + 1, p1);  /* 1st argument */
-  setobj2s(L, func + 2, p2);  /* 2nd argument */
-  setobj2s(L, func + 3, p3);  /* 3rd argument */
+  setobj2s(L, func, f);  /* push function (assume EXTRA_STACK) 压入函数*/
+  setobj2s(L, func + 1, p1);  /* 1st argument 第1个参数 */
+  setobj2s(L, func + 2, p2);  /* 2nd argument 第2个参数 */
+  setobj2s(L, func + 3, p3);  /* 3rd argument 第3个参数 */
   L->top = func + 4;
-  /* metamethod may yield only when called from Lua code */
+  /* 
+     metamethod may yield only when called from Lua code 
+     元方法只能在从Lua代码调用时产生
+  */
   if (isLuacode(L->ci))
     luaD_call(L, func, 0);
   else
@@ -120,25 +126,28 @@ void luaT_callTMres (lua_State *L, const TValue *f, const TValue *p1,
                      const TValue *p2, StkId res) {
   ptrdiff_t result = savestack(L, res);
   StkId func = L->top;
-  setobj2s(L, func, f);  /* push function (assume EXTRA_STACK) */
-  setobj2s(L, func + 1, p1);  /* 1st argument */
-  setobj2s(L, func + 2, p2);  /* 2nd argument */
+  setobj2s(L, func, f);  /* push function (assume EXTRA_STACK) 压入函数 */
+  setobj2s(L, func + 1, p1);  /* 1st argument 第1个参数 */
+  setobj2s(L, func + 2, p2);  /* 2nd argument 第2个参数 */
   L->top += 3;
-  /* metamethod may yield only when called from Lua code */
+  /* 
+     metamethod may yield only when called from Lua code 
+     元方法只能在从Lua代码调用时产生
+  */
   if (isLuacode(L->ci))
     luaD_call(L, func, 1);
   else
     luaD_callnoyield(L, func, 1);
   res = restorestack(L, result);
-  setobjs2s(L, res, --L->top);  /* move result to its place */
+  setobjs2s(L, res, --L->top);  /* move result to its place 将结果移到其位置 */
 }
 
 
 static int callbinTM (lua_State *L, const TValue *p1, const TValue *p2,
                       StkId res, TMS event) {
-  const TValue *tm = luaT_gettmbyobj(L, p1, event);  /* try first operand */
+  const TValue *tm = luaT_gettmbyobj(L, p1, event);  /* try first operand 尝试第一个操作数 */
   if (notm(tm))
-    tm = luaT_gettmbyobj(L, p2, event);  /* try second operand */
+    tm = luaT_gettmbyobj(L, p2, event);  /* try second operand 尝试第二个操作数 */
   if (notm(tm)) return 0;
   luaT_callTMres(L, tm, p1, p2, res);
   return 1;
@@ -156,7 +165,10 @@ void luaT_trybinTM (lua_State *L, const TValue *p1, const TValue *p2,
         else
           luaG_opinterror(L, p1, p2, "perform bitwise operation on");
       }
-      /* calls never return, but to avoid warnings: *//* FALLTHROUGH */
+      /* 
+         calls never return, but to avoid warnings: *//* FALLTHROUGH 
+         调用永远不会返回，但要避免警告：
+      */
       default:
         luaG_opinterror(L, p1, p2, "perform arithmetic on");
     }
@@ -200,21 +212,21 @@ void luaT_trybiniTM (lua_State *L, const TValue *p1, lua_Integer i2,
 */
 int luaT_callorderTM (lua_State *L, const TValue *p1, const TValue *p2,
                       TMS event) {
-  if (callbinTM(L, p1, p2, L->top, event))  /* try original event */
+  if (callbinTM(L, p1, p2, L->top, event))  /* try original event 尝试原始事件 */
     return !l_isfalse(s2v(L->top));
 #if defined(LUA_COMPAT_LT_LE)
   else if (event == TM_LE) {
       /* try '!(p2 < p1)' for '(p1 <= p2)' */
-      L->ci->callstatus |= CIST_LEQ;  /* mark it is doing 'lt' for 'le' */
+      L->ci->callstatus |= CIST_LEQ;  /* mark it is doing 'lt' for 'le' 标记它在为'le'做'lt' */
       if (callbinTM(L, p2, p1, L->top, TM_LT)) {
-        L->ci->callstatus ^= CIST_LEQ;  /* clear mark */
+        L->ci->callstatus ^= CIST_LEQ;  /* clear mark 清除标记 */
         return l_isfalse(s2v(L->top));
       }
-      /* else error will remove this 'ci'; no need to clear mark */
+      /* else error will remove this 'ci'; no need to clear mark 否则错误将删除此'ci'；无需清除标记 */
   }
 #endif
-  luaG_ordererror(L, p1, p2);  /* no metamethod found */
-  return 0;  /* to avoid warnings */
+  luaG_ordererror(L, p1, p2);  /* no metamethod found 未找到元方法 */
+  return 0;  /* to avoid warnings 以避免警告 */
 }
 
 
@@ -226,8 +238,8 @@ int luaT_callorderiTM (lua_State *L, const TValue *p1, int v2,
   }
   else
     setivalue(&aux, v2);
-  if (flip) {  /* arguments were exchanged? */
-    p2 = p1; p1 = &aux;  /* correct them */
+  if (flip) {  /* arguments were exchanged? 是否交换了争论？ */
+    p2 = p1; p1 = &aux;  /* correct them 纠正它们 */
   }
   else
     p2 = &aux;
@@ -238,16 +250,16 @@ int luaT_callorderiTM (lua_State *L, const TValue *p1, int v2,
 void luaT_adjustvarargs (lua_State *L, int nfixparams, CallInfo *ci,
                          const Proto *p) {
   int i;
-  int actual = cast_int(L->top - ci->func) - 1;  /* number of arguments */
-  int nextra = actual - nfixparams;  /* number of extra arguments */
+  int actual = cast_int(L->top - ci->func) - 1;  /* number of arguments 参数的数量 */
+  int nextra = actual - nfixparams;  /* number of extra arguments 额外参数的数量 */
   ci->u.l.nextraargs = nextra;
   luaD_checkstack(L, p->maxstacksize + 1);
-  /* copy function to the top of the stack */
+  /* copy function to the top of the stack 将函数复制到堆栈顶部 */
   setobjs2s(L, L->top++, ci->func);
-  /* move fixed parameters to the top of the stack */
+  /* move fixed parameters to the top of the stack 将固定参数移动到堆栈顶部 */
   for (i = 1; i <= nfixparams; i++) {
     setobjs2s(L, L->top++, ci->func + i);
-    setnilvalue(s2v(ci->func + i));  /* erase original parameter (for GC) */
+    setnilvalue(s2v(ci->func + i));  /* erase original parameter (for GC) 擦除原始参数 */
   }
   ci->func += actual + 1;
   ci->top += actual + 1;
@@ -259,13 +271,13 @@ void luaT_getvarargs (lua_State *L, CallInfo *ci, StkId where, int wanted) {
   int i;
   int nextra = ci->u.l.nextraargs;
   if (wanted < 0) {
-    wanted = nextra;  /* get all extra arguments available */
-    checkstackGCp(L, nextra, where);  /* ensure stack space */
-    L->top = where + nextra;  /* next instruction will need top */
+    wanted = nextra;  /* get all extra arguments available 获取所有可用的额外参数 */
+    checkstackGCp(L, nextra, where);  /* ensure stack space 确保堆栈空间 */
+    L->top = where + nextra;  /* next instruction will need top 下一条指令需要 top */
   }
   for (i = 0; i < wanted && i < nextra; i++)
     setobjs2s(L, where + i, ci->func - nextra + i);
-  for (; i < wanted; i++)   /* complete required results with nil */
+  for (; i < wanted; i++)   /* complete required results with nil 完成要求的结果，NIL */
     setnilvalue(s2v(where + i));
 }
 

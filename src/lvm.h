@@ -1,6 +1,7 @@
 /*
 ** $Id: lvm.h $
 ** Lua virtual machine
+** Lua 虚拟机
 ** See Copyright Notice in lua.h
 */
 
@@ -31,6 +32,7 @@
 ** You can define LUA_FLOORN2I if you want to convert floats to integers
 ** by flooring them (instead of raising an error if they are not
 ** integral values)
+** 如果要将浮点值转换为整数，可以定义 LUA_FLOORN2I （如果他们不是整数值，则不会引发错误）
 */
 #if !defined(LUA_FLOORN2I)
 #define LUA_FLOORN2I		F2Ieq
@@ -39,32 +41,33 @@
 
 /*
 ** Rounding modes for float->integer coercion
- */
+** 浮点 -> 整数 强制的舍入模式
+*/
 typedef enum {
-  F2Ieq,     /* no rounding; accepts only integral values */
+  F2Ieq,     /* no rounding; accepts only integral values 无舍入；只接受整数值 */
   F2Ifloor,  /* takes the floor of the number */
   F2Iceil    /* takes the ceil of the number */
 } F2Imod;
 
 
-/* convert an object to a float (including string coercion) */
+/* convert an object to a float (including string coercion) 将对象转换为浮点（包括字符串强制）*/
 #define tonumber(o,n) \
 	(ttisfloat(o) ? (*(n) = fltvalue(o), 1) : luaV_tonumber_(o,n))
 
 
-/* convert an object to a float (without string coercion) */
+/* convert an object to a float (without string coercion) 将对象转换为浮点（无字符串强制）*/
 #define tonumberns(o,n) \
 	(ttisfloat(o) ? ((n) = fltvalue(o), 1) : \
 	(ttisinteger(o) ? ((n) = cast_num(ivalue(o)), 1) : 0))
 
 
-/* convert an object to an integer (including string coercion) */
+/* convert an object to an integer (including string coercion) 将对象转换为整数（包括字符串强制） */
 #define tointeger(o,i) \
   (l_likely(ttisinteger(o)) ? (*(i) = ivalue(o), 1) \
                           : luaV_tointeger(o,i,LUA_FLOORN2I))
 
 
-/* convert an object to an integer (without string coercion) */
+/* convert an object to an integer (without string coercion) 将对象转换为整数（无字符串强制）*/
 #define tointegerns(o,i) \
   (l_likely(ttisinteger(o)) ? (*(i) = ivalue(o), 1) \
                           : luaV_tointegerns(o,i,LUA_FLOORN2I))
@@ -81,29 +84,33 @@ typedef enum {
 ** Otherwise, return 0 (meaning it will have to check metamethod)
 ** with 'slot' pointing to an empty 't[k]' (if 't' is a table) or NULL
 ** (otherwise). 'f' is the raw get function to use.
+** 快速跟踪'gettable'：如果't'是一个表，并且't[k]'存在，则返回1，'slot'指向't[k]'（最终结果的位置）。
+** 否则，返回0（意味着它必须检查元方法），'slot'指向空的't[k]'（如果't'是表）或NULL（否则）'f'是要使用的原始get函数。
 */
 #define luaV_fastget(L,t,k,slot,f) \
   (!ttistable(t)  \
-   ? (slot = NULL, 0)  /* not a table; 'slot' is NULL and result is 0 */  \
-   : (slot = f(hvalue(t), k),  /* else, do raw access */  \
-      !isempty(slot)))  /* result not empty? */
+   ? (slot = NULL, 0)  /* not a table; 'slot' is NULL and result is 0 。不是表；'slot'为空，结果为0 */  \
+   : (slot = f(hvalue(t), k),  /* else, do raw access 否则，执行原始访问 */  \
+      !isempty(slot)))  /* result not empty? 结果不为空？ */
 
 
 /*
 ** Special case of 'luaV_fastget' for integers, inlining the fast case
 ** of 'luaH_getint'.
+** 整数的'luaV_fastget'的特殊情况，内联了'luaH_getint'的快速情况。
 */
 #define luaV_fastgeti(L,t,k,slot) \
   (!ttistable(t)  \
-   ? (slot = NULL, 0)  /* not a table; 'slot' is NULL and result is 0 */  \
+   ? (slot = NULL, 0)  /* not a table; 'slot' is NULL and result is 0。不是表， 'slot'为空，结果为0 */  \
    : (slot = (l_castS2U(k) - 1u < hvalue(t)->alimit) \
               ? &hvalue(t)->array[k - 1] : luaH_getint(hvalue(t), k), \
-      !isempty(slot)))  /* result not empty? */
+      !isempty(slot)))  /* result not empty? 结果不为空？ */
 
 
 /*
 ** Finish a fast set operation (when fast get succeeds). In that case,
 ** 'slot' points to the place to put the value.
+** 完成快速设置操作（当快速获取成功时）。在这种情况下，'slot'指向放置值的位置。
 */
 #define luaV_finishfastset(L,t,slot,v) \
     { setobj2t(L, cast(TValue *,slot), v); \

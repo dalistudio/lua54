@@ -1,6 +1,7 @@
 /*
 ** $Id: ltable.c $
 ** Lua tables (hash)
+** Lua 表（散列）
 ** See Copyright Notice in lua.h
 */
 

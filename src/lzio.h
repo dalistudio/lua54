@@ -1,6 +1,7 @@
 /*
 ** $Id: lzio.h $
 ** Buffered streams
+** 缓冲流
 ** See Copyright Notice in lua.h
 */
 
@@ -13,7 +14,7 @@
 #include "lmem.h"
 
 
-#define EOZ	(-1)			/* end of stream */
+#define EOZ	(-1)			/* end of stream 流的结尾 */
 
 typedef struct Zio ZIO;
 
@@ -46,18 +47,18 @@ typedef struct Mbuffer {
 
 LUAI_FUNC void luaZ_init (lua_State *L, ZIO *z, lua_Reader reader,
                                         void *data);
-LUAI_FUNC size_t luaZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
+LUAI_FUNC size_t luaZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes 读取下一个n字节 */
 
 
 
-/* --------- Private Part ------------------ */
+/* --------- Private Part 私有部分 ------------------ */
 
 struct Zio {
-  size_t n;			/* bytes still unread */
-  const char *p;		/* current position in buffer */
-  lua_Reader reader;		/* reader function */
-  void *data;			/* additional data */
-  lua_State *L;			/* Lua state (for reader) */
+  size_t n;			/* bytes still unread 字节未读 */
+  const char *p;		/* current position in buffer 缓冲区中的当前位置 */
+  lua_Reader reader;		/* reader function 读取器功能 */
+  void *data;			/* additional data 附加数据 */
+  lua_State *L;			/* Lua state (for reader) 状态机 */
 };
 
 

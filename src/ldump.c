@@ -1,6 +1,7 @@
 /*
 ** $Id: ldump.c $
 ** save precompiled Lua chunks
+** 保存预编译的Lua块
 ** See Copyright Notice in lua.h
 */
 
@@ -31,6 +32,7 @@ typedef struct {
 /*
 ** All high-level dumps go through dumpVector; you can change it to
 ** change the endianness of the result
+** 所有高级转储都经过dumpVector；您可以更改它以更改结果的结尾。
 */
 #define dumpVector(D,v,n)	dumpBlock(D,v,(n)*sizeof((v)[0]))
 
@@ -62,10 +64,10 @@ static void dumpSize (DumpState *D, size_t x) {
   lu_byte buff[DIBS];
   int n = 0;
   do {
-    buff[DIBS - (++n)] = x & 0x7f;  /* fill buffer in reverse order */
+    buff[DIBS - (++n)] = x & 0x7f;  /* fill buffer in reverse order 按相反顺序填充缓冲区 */
     x >>= 7;
   } while (x != 0);
-  buff[DIBS - 1] |= 0x80;  /* mark last byte */
+  buff[DIBS - 1] |= 0x80;  /* mark last byte 标记最后一个字节 */
   dumpVector(D, buff + DIBS - n, n);
 }
 
@@ -178,7 +180,7 @@ static void dumpDebug (DumpState *D, const Proto *f) {
 
 static void dumpFunction (DumpState *D, const Proto *f, TString *psource) {
   if (D->strip || f->source == psource)
-    dumpString(D, NULL);  /* no debug info or same source as its parent */
+    dumpString(D, NULL);  /* no debug info or same source as its parent 没有调试信息或与其父级相同的源 */
   else
     dumpString(D, f->source);
   dumpInt(D, f->linedefined);
@@ -209,6 +211,7 @@ static void dumpHeader (DumpState *D) {
 
 /*
 ** dump Lua function as precompiled chunk
+** 将 Lua函数转储为预编译块
 */
 int luaU_dump(lua_State *L, const Proto *f, lua_Writer w, void *data,
               int strip) {

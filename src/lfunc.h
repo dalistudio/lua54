@@ -1,6 +1,7 @@
 /*
 ** $Id: lfunc.h $
 ** Auxiliary functions to manipulate prototypes and closures
+** 操作原型和闭包的辅助函数
 ** See Copyright Notice in lua.h
 */
 
@@ -25,6 +26,7 @@
 /*
 ** maximum number of upvalues in a closure (both C and Lua). (Value
 ** must fit in a VM register.)
+** 闭包(C和Lua)中上值的最大数量。（值必须时和VM寄存器）
 */
 #define MAXUPVAL	255
 
@@ -38,12 +40,16 @@
 /*
 ** maximum number of misses before giving up the cache of closures
 ** in prototypes
+** 放弃原型中闭包缓存之前的最大未命中数
 */
 #define MAXMISS		10
 
 
 
-/* special status to close upvalues preserving the top of the stack */
+/* 
+   special status to close upvalues preserving the top of the stack 
+   关闭保留堆栈顶部的值的特殊状态
+*/
 #define CLOSEKTOP	(-1)
 
 

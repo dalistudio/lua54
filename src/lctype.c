@@ -1,6 +1,7 @@
 /*
 ** $Id: lctype.c $
 ** 'ctype' functions for Lua
+** Lua 'ctype' 函数
 ** See Copyright Notice in lua.h
 */
 
@@ -17,11 +18,11 @@
 #include <limits.h>
 
 
-#if defined (LUA_UCID)		/* accept UniCode IDentifiers? */
+#if defined (LUA_UCID)		/* accept UniCode IDentifiers?  是否接受UniCode标识符 */
 /* consider all non-ascii codepoints to be alphabetic */
 #define NONA		0x01
 #else
-#define NONA		0x00	/* default */
+#define NONA		0x00	/* default 默认 */
 #endif
 
 

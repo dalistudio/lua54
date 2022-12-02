@@ -1,6 +1,7 @@
 /*
 ** $Id: lundump.c $
 ** load precompiled Lua chunks
+** 加载预编译的Lua块
 ** See Copyright Notice in lua.h
 */
 
@@ -26,7 +27,7 @@
 
 
 #if !defined(luai_verifycode)
-#define luai_verifycode(L,f)  /* empty */
+#define luai_verifycode(L,f)  /* empty 空 */
 #endif
 
 
@@ -46,6 +47,7 @@ static l_noret error (LoadState *S, const char *why) {
 /*
 ** All high-level loads go through loadVector; you can change it to
 ** adapt to the endianness of the input
+** 所有高级负载都通过loadVector；您可以更改它以适应输入的端。
 */
 #define loadVector(S,b,n)	loadBlock(S,b,(n)*sizeof((b)[0]))
 
@@ -106,24 +108,25 @@ static lua_Integer loadInteger (LoadState *S) {
 
 /*
 ** Load a nullable string into prototype 'p'.
+** 加载nullable字符串到原型'p'中
 */
 static TString *loadStringN (LoadState *S, Proto *p) {
   lua_State *L = S->L;
   TString *ts;
   size_t size = loadSize(S);
-  if (size == 0)  /* no string? */
+  if (size == 0)  /* no string?  没有字符串？ */
     return NULL;
-  else if (--size <= LUAI_MAXSHORTLEN) {  /* short string? */
+  else if (--size <= LUAI_MAXSHORTLEN) {  /* short string? 短字符串？ */
     char buff[LUAI_MAXSHORTLEN];
-    loadVector(S, buff, size);  /* load string into buffer */
-    ts = luaS_newlstr(L, buff, size);  /* create string */
+    loadVector(S, buff, size);  /* load string into buffer 将字符串加载到缓冲区 */
+    ts = luaS_newlstr(L, buff, size);  /* create string 创建字符串 */
   }
-  else {  /* long string */
-    ts = luaS_createlngstrobj(L, size);  /* create string */
-    setsvalue2s(L, L->top, ts);  /* anchor it ('loadVector' can GC) */
+  else {  /* long string 长字符串 */
+    ts = luaS_createlngstrobj(L, size);  /* create string 创建字符串 */
+    setsvalue2s(L, L->top, ts);  /* anchor it ('loadVector' can GC) 锚定它（'loadVector' 可以 GC）*/
     luaD_inctop(L);
-    loadVector(S, getstr(ts), size);  /* load directly in final place */
-    L->top--;  /* pop string */
+    loadVector(S, getstr(ts), size);  /* load directly in final place 直接在最终位置加载 */
+    L->top--;  /* pop string 弹出字符串 */
   }
   luaC_objbarrier(L, p, ts);
   return ts;
@@ -132,6 +135,7 @@ static TString *loadStringN (LoadState *S, Proto *p) {
 
 /*
 ** Load a non-nullable string into prototype 'p'.
+** 加载一个 non-nullable 字符串到原型'p'
 */
 static TString *loadString (LoadState *S, Proto *p) {
   TString *st = loadStringN(S, p);
@@ -208,15 +212,17 @@ static void loadProtos (LoadState *S, Proto *f) {
 ** because the filling of the other fields can raise read errors and
 ** the creation of the error message can call an emergency collection;
 ** in that case all prototypes must be consistent for the GC.
+** 加载函数的上值。必须首先填写名称，因为填写其他字端可能会引发读取错误，创建错误消息可能
+** 会调用紧急集合；在这种情况下，GC的所有原型必须一致。
 */
 static void loadUpvalues (LoadState *S, Proto *f) {
   int i, n;
   n = loadInt(S);
   f->upvalues = luaM_newvectorchecked(S->L, n, Upvaldesc);
   f->sizeupvalues = n;
-  for (i = 0; i < n; i++)  /* make array valid for GC */
+  for (i = 0; i < n; i++)  /* make array valid for GC 使数组对GC有效 */
     f->upvalues[i].name = NULL;
-  for (i = 0; i < n; i++) {  /* following calls can raise errors */
+  for (i = 0; i < n; i++) {  /* following calls can raise errors 以下嗲用可能引发错误 */
     f->upvalues[i].instack = loadByte(S);
     f->upvalues[i].idx = loadByte(S);
     f->upvalues[i].kind = loadByte(S);
@@ -255,8 +261,8 @@ static void loadDebug (LoadState *S, Proto *f) {
 
 static void loadFunction (LoadState *S, Proto *f, TString *psource) {
   f->source = loadStringN(S, f);
-  if (f->source == NULL)  /* no source in dump? */
-    f->source = psource;  /* reuse parent's source */
+  if (f->source == NULL)  /* no source in dump? 转储中没有源？ */
+    f->source = psource;  /* reuse parent's source 重用父级源 */
   f->linedefined = loadInt(S);
   f->lastlinedefined = loadInt(S);
   f->numparams = loadByte(S);
@@ -271,7 +277,7 @@ static void loadFunction (LoadState *S, Proto *f, TString *psource) {
 
 
 static void checkliteral (LoadState *S, const char *s, const char *msg) {
-  char buff[sizeof(LUA_SIGNATURE) + sizeof(LUAC_DATA)]; /* larger than both */
+  char buff[sizeof(LUA_SIGNATURE) + sizeof(LUAC_DATA)]; /* larger than both 大于两者 */
   size_t len = strlen(s);
   loadVector(S, buff, len);
   if (memcmp(s, buff, len) != 0)
@@ -288,7 +294,7 @@ static void fchecksize (LoadState *S, size_t size, const char *tname) {
 #define checksize(S,t)	fchecksize(S,sizeof(t),#t)
 
 static void checkHeader (LoadState *S) {
-  /* skip 1st char (already read and checked) */
+  /* skip 1st char (already read and checked) 跳过第一个字符（已读取并选中）*/
   checkliteral(S, &LUA_SIGNATURE[1], "not a binary chunk");
   if (loadByte(S) != LUAC_VERSION)
     error(S, "version mismatch");
@@ -306,7 +312,7 @@ static void checkHeader (LoadState *S) {
 
 
 /*
-** Load precompiled chunk.
+** Load precompiled chunk. 加载预编译块
 */
 LClosure *luaU_undump(lua_State *L, ZIO *Z, const char *name) {
   LoadState S;
@@ -314,7 +320,7 @@ LClosure *luaU_undump(lua_State *L, ZIO *Z, const char *name) {
   if (*name == '@' || *name == '=')
     S.name = name + 1;
   else if (*name == LUA_SIGNATURE[0])
-    S.name = "binary string";
+    S.name = "binary string"; // 二进制字符串
   else
     S.name = name;
   S.L = L;

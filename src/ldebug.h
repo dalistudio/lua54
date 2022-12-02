@@ -1,6 +1,7 @@
 /*
 ** $Id: ldebug.h $
 ** Auxiliary functions from Debug Interface module
+** 调试接口模块的辅助功能
 ** See Copyright Notice in lua.h
 */
 
@@ -14,7 +15,7 @@
 #define pcRel(pc, p)	(cast_int((pc) - (p)->code) - 1)
 
 
-/* Active Lua function (given call info) */
+/* Active Lua function (given call info) 活动Lua函数（给定调用信息）*/
 #define ci_func(ci)		(clLvalue(s2v((ci)->func)))
 
 
@@ -23,6 +24,7 @@
 /*
 ** mark for entries in 'lineinfo' array that has absolute information in
 ** 'abslineinfo' array
+** 标记 'lineinfo' 数组中具有 'abslineinfo' 的条目
 */
 #define ABSLINEINFO	(-0x80)
 
@@ -30,6 +32,7 @@
 /*
 ** MAXimum number of successive Instructions WiTHout ABSolute line
 ** information. (A power of two allows fast divisions.)
+** 带绝对信息的最大连续指令数
 */
 #if !defined(MAXIWTHABS)
 #define MAXIWTHABS	128

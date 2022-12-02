@@ -1,6 +1,7 @@
 /*
 ** $Id: ldebug.c $
 ** Debug Interface
+** 调试接口
 ** See Copyright Notice in lua.h
 */
 

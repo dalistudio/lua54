@@ -1,6 +1,7 @@
 /*
 ** $Id: lcode.h $
 ** Code generator for Lua
+** Lua代码生成器
 ** See Copyright Notice in lua.h
 */
 
@@ -16,32 +17,37 @@
 /*
 ** Marks the end of a patch list. It is an invalid value both as an absolute
 ** address, and as a list link (would link an element to itself).
+** 标记修补程序列表的结尾。它作为绝对地址和链表（将元素链表到自身）都是无效值。
 */
 #define NO_JUMP (-1)
 
 
 /*
 ** grep "ORDER OPR" if you change these enums  (ORDER OP)
+** grep "ORDER OPR" 如果您更改这些枚举 (ORDER OP)
 */
 typedef enum BinOpr {
-  /* arithmetic operators */
+  /* arithmetic operators 算术运算 */
   OPR_ADD, OPR_SUB, OPR_MUL, OPR_MOD, OPR_POW,
   OPR_DIV, OPR_IDIV,
-  /* bitwise operators */
+  /* bitwise operators 位运算 */
   OPR_BAND, OPR_BOR, OPR_BXOR,
   OPR_SHL, OPR_SHR,
-  /* string operator */
+  /* string operator 字符串运算 */
   OPR_CONCAT,
-  /* comparison operators */
+  /* comparison operators 比较运算 */
   OPR_EQ, OPR_LT, OPR_LE,
   OPR_NE, OPR_GT, OPR_GE,
-  /* logical operators */
+  /* logical operators 逻辑运算 */
   OPR_AND, OPR_OR,
   OPR_NOBINOPR
 } BinOpr;
 
 
-/* true if operation is foldable (that is, it is arithmetic or bitwise) */
+/* 
+   true if operation is foldable (that is, it is arithmetic or bitwise) 
+   如果操作是目录（即，它是运算或位的），则为真。
+*/
 #define foldbinop(op)	((op) <= OPR_SHR)
 
 
@@ -51,7 +57,10 @@ typedef enum BinOpr {
 typedef enum UnOpr { OPR_MINUS, OPR_BNOT, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
 
 
-/* get (pointer to) instruction of given 'expdesc' */
+/* 
+   get (pointer to) instruction of given 'expdesc' 
+   获得（指向）给定 'expdesc' 的指令
+*/
 #define getinstruction(fs,e)	((fs)->f->code[(e)->u.info])
 
 

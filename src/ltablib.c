@@ -1,6 +1,7 @@
 /*
 ** $Id: ltablib.c $
 ** Library for Table Manipulation
+** 表操作库
 ** See Copyright Notice in lua.h
 */
 
@@ -23,11 +24,13 @@
 /*
 ** Operations that an object must define to mimic a table
 ** (some functions only need some of them)
+** 对象必须定义以模仿表的操作
+**（有些函数只需要其中的一些）
 */
-#define TAB_R	1			/* read */
-#define TAB_W	2			/* write */
-#define TAB_L	4			/* length */
-#define TAB_RW	(TAB_R | TAB_W)		/* read/write */
+#define TAB_R	1			/* read 读取 */
+#define TAB_W	2			/* write 写入 */
+#define TAB_L	4			/* length 长度 */
+#define TAB_RW	(TAB_R | TAB_W)		/* read/write 读取/写入 */
 
 
 #define aux_getn(L,n,w)	(checktab(L, n, (w) | TAB_L), luaL_len(L, n))
@@ -42,38 +45,39 @@ static int checkfield (lua_State *L, const char *key, int n) {
 /*
 ** Check that 'arg' either is a table or can behave like one (that is,
 ** has a metatable with the required metamethods)
+** 检查 'arg' 是否时一个表或可以表现得像一个表（即，具有一个具有所需元方法的元表）
 */
 static void checktab (lua_State *L, int arg, int what) {
-  if (lua_type(L, arg) != LUA_TTABLE) {  /* is it not a table? */
-    int n = 1;  /* number of elements to pop */
-    if (lua_getmetatable(L, arg) &&  /* must have metatable */
+  if (lua_type(L, arg) != LUA_TTABLE) {  /* is it not a table? 这不是一张表吗？*/
+    int n = 1;  /* number of elements to pop 要弹出的元素数 */
+    if (lua_getmetatable(L, arg) &&  /* must have metatable 必须具有元表 */
         (!(what & TAB_R) || checkfield(L, "__index", ++n)) &&
         (!(what & TAB_W) || checkfield(L, "__newindex", ++n)) &&
         (!(what & TAB_L) || checkfield(L, "__len", ++n))) {
-      lua_pop(L, n);  /* pop metatable and tested metamethods */
+      lua_pop(L, n);  /* pop metatable and tested metamethods 弹出元表和测试元方法 */
     }
     else
-      luaL_checktype(L, arg, LUA_TTABLE);  /* force an error */
+      luaL_checktype(L, arg, LUA_TTABLE);  /* force an error 强制执行错误 */
   }
 }
 
 
 static int tinsert (lua_State *L) {
-  lua_Integer pos;  /* where to insert new element */
+  lua_Integer pos;  /* where to insert new element 插入新元素的位置 */
   lua_Integer e = aux_getn(L, 1, TAB_RW);
-  e = luaL_intop(+, e, 1);  /* first empty element */
+  e = luaL_intop(+, e, 1);  /* first empty element 第一个空元素 */
   switch (lua_gettop(L)) {
-    case 2: {  /* called with only 2 arguments */
-      pos = e;  /* insert new element at the end */
+    case 2: {  /* called with only 2 arguments 仅用2个参数调用 */
+      pos = e;  /* insert new element at the end 在末尾插入新元素 */
       break;
     }
     case 3: {
       lua_Integer i;
-      pos = luaL_checkinteger(L, 2);  /* 2nd argument is the position */
+      pos = luaL_checkinteger(L, 2);  /* 2nd argument is the position 第二个参数时位置 */
       /* check whether 'pos' is in [1, e] */
       luaL_argcheck(L, (lua_Unsigned)pos - 1u < (lua_Unsigned)e, 2,
                        "position out of bounds");
-      for (i = e; i > pos; i--) {  /* move up elements */
+      for (i = e; i > pos; i--) {  /* move up elements 上移元素 */
         lua_geti(L, 1, i - 1);
         lua_seti(L, 1, i);  /* t[i] = t[i - 1] */
       }
@@ -116,14 +120,14 @@ static int tmove (lua_State *L) {
   lua_Integer f = luaL_checkinteger(L, 2);
   lua_Integer e = luaL_checkinteger(L, 3);
   lua_Integer t = luaL_checkinteger(L, 4);
-  int tt = !lua_isnoneornil(L, 5) ? 5 : 1;  /* destination table */
+  int tt = !lua_isnoneornil(L, 5) ? 5 : 1;  /* destination table 目的地表*/
   checktab(L, 1, TAB_R);
   checktab(L, tt, TAB_W);
-  if (e >= f) {  /* otherwise, nothing to move */
+  if (e >= f) {  /* otherwise, nothing to move 否则，无需移动 */
     lua_Integer n, i;
     luaL_argcheck(L, f > 0 || e < LUA_MAXINTEGER + f, 3,
                   "too many elements to move");
-    n = e - f + 1;  /* number of elements to move */
+    n = e - f + 1;  /* number of elements to move 要移动的元素数 */
     luaL_argcheck(L, t <= LUA_MAXINTEGER - n + 1, 4,
                   "destination wrap around");
     if (t > e || t <= f || (tt != 1 && !lua_compare(L, 1, tt, LUA_OPEQ))) {
@@ -139,7 +143,7 @@ static int tmove (lua_State *L) {
       }
     }
   }
-  lua_pushvalue(L, tt);  /* return destination table */
+  lua_pushvalue(L, tt);  /* return destination table 返回目的地表 */
   return 1;
 }
 
@@ -174,20 +178,20 @@ static int tconcat (lua_State *L) {
 
 /*
 ** {======================================================
-** Pack/unpack
+** Pack/unpack 打包/解包
 ** =======================================================
 */
 
 static int tpack (lua_State *L) {
   int i;
-  int n = lua_gettop(L);  /* number of elements to pack */
-  lua_createtable(L, n, 1);  /* create result table */
-  lua_insert(L, 1);  /* put it at index 1 */
-  for (i = n; i >= 1; i--)  /* assign elements */
+  int n = lua_gettop(L);  /* number of elements to pack 要打包的元素数 */
+  lua_createtable(L, n, 1);  /* create result table 创建结果表 */
+  lua_insert(L, 1);  /* put it at index 1 把它放在索引1 */
+  for (i = n; i >= 1; i--)  /* assign elements 指定元素 */
     lua_seti(L, 1, i);
   lua_pushinteger(L, n);
   lua_setfield(L, 1, "n");  /* t.n = number of elements */
-  return 1;  /* return table */
+  return 1;  /* return table 返回表 */
 }
 
 
@@ -195,15 +199,15 @@ static int tunpack (lua_State *L) {
   lua_Unsigned n;
   lua_Integer i = luaL_optinteger(L, 2, 1);
   lua_Integer e = luaL_opt(L, luaL_checkinteger, 3, luaL_len(L, 1));
-  if (i > e) return 0;  /* empty range */
-  n = (lua_Unsigned)e - i;  /* number of elements minus 1 (avoid overflows) */
+  if (i > e) return 0;  /* empty range 空范围 */
+  n = (lua_Unsigned)e - i;  /* number of elements minus 1 (avoid overflows) 元素数减1（避免溢出）*/
   if (l_unlikely(n >= (unsigned int)INT_MAX  ||
                  !lua_checkstack(L, (int)(++n))))
     return luaL_error(L, "too many results to unpack");
   for (; i < e; i++) {  /* push arg[i..e - 1] (to avoid overflows) */
     lua_geti(L, 1, i);
   }
-  lua_geti(L, 1, e);  /* push last element */
+  lua_geti(L, 1, e);  /* push last element 推送最后一个元素 */
   return (int)n;
 }
 
@@ -213,7 +217,7 @@ static int tunpack (lua_State *L) {
 
 /*
 ** {======================================================
-** Quicksort
+** Quicksort 快速排序
 ** (based on 'Algorithms in MODULA-3', Robert Sedgewick;
 **  Addison-Wesley, 1993.)
 ** =======================================================
@@ -229,6 +233,8 @@ typedef unsigned int IdxT;
 ** macro is used only when 'sort' detects a big imbalance in the result
 ** of a partition. (If you don't want/need this "randomness", ~0 is a
 ** good choice.)
+** 生成一个“随机”无符号整数，以随机化枢轴选择。仅当“排序”检测到分区结果中存在严重不平衡时，
+** 才使用此宏。（如果您不想/不需要这种“随机性”，~0时一个不错的选择。）
 */
 #if !defined(l_randomizePivot)		/* { */
 

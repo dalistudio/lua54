@@ -1,6 +1,7 @@
 /*
 ** $Id: lapi.c $
 ** Lua API
+** Lua 应用程序接口
 ** See Copyright Notice in lua.h
 */
 
@@ -31,31 +32,42 @@
 #include "lvm.h"
 
 
-
+// lua识别
 const char lua_ident[] =
-  "$LuaVersion: " LUA_COPYRIGHT " $"
-  "$LuaAuthors: " LUA_AUTHORS " $";
+  "$LuaVersion: " LUA_COPYRIGHT " $" // 版权信息
+  "$LuaAuthors: " LUA_AUTHORS " $"; // 作者信息
 
 
 
 /*
 ** Test for a valid index (one that is not the 'nilvalue').
+** 测试有效索引（不是“nilvalue”的索引）
 ** '!ttisnil(o)' implies 'o != &G(L)->nilvalue', so it is not needed.
+** '!ttisnil(o)' implies 'o != &G(L)->nilvalue', 因此不需要。
 ** However, it covers the most common cases in a faster way.
+** 然而，它以更快的方式涵盖了最常见的情况。
 */
 #define isvalid(L, o)	(!ttisnil(o) || o != &G(L)->nilvalue)
 
 
-/* test for pseudo index */
+/* 
+    test for pseudo index 
+    伪索引测试
+*/
 #define ispseudo(i)		((i) <= LUA_REGISTRYINDEX)
 
-/* test for upvalue */
+/* 
+    test for upvalue 
+    上值测试
+*/
 #define isupvalue(i)		((i) < LUA_REGISTRYINDEX)
 
 
 /*
 ** Convert an acceptable index to a pointer to its respective value.
+** 将可接受的 索引转换为指向其相应值的指针。
 ** Non-valid indices return the special nil value 'G(L)->nilvalue'.
+** 无效索引返回特殊的nil值 'G(L)->nilvalue'
 */
 static TValue *index2value (lua_State *L, int idx) {
   CallInfo *ci = L->ci;
@@ -65,23 +77,23 @@ static TValue *index2value (lua_State *L, int idx) {
     if (o >= L->top) return &G(L)->nilvalue;
     else return s2v(o);
   }
-  else if (!ispseudo(idx)) {  /* negative index */
+  else if (!ispseudo(idx)) {  /* negative index 负指数 */
     api_check(L, idx != 0 && -idx <= L->top - (ci->func + 1), "invalid index");
     return s2v(L->top + idx);
   }
   else if (idx == LUA_REGISTRYINDEX)
     return &G(L)->l_registry;
-  else {  /* upvalues */
+  else {  /* upvalues 上值 */
     idx = LUA_REGISTRYINDEX - idx;
     api_check(L, idx <= MAXUPVAL + 1, "upvalue index too large");
-    if (ttisCclosure(s2v(ci->func))) {  /* C closure? */
+    if (ttisCclosure(s2v(ci->func))) {  /* C closure? 闭合? */
       CClosure *func = clCvalue(s2v(ci->func));
       return (idx <= func->nupvalues) ? &func->upvalue[idx-1]
                                       : &G(L)->nilvalue;
     }
-    else {  /* light C function or Lua function (through a hook)?) */
+    else {  /* light C function or Lua function (through a hook)?) 轻C函数或Lua功能(通过钩子)？ */
       api_check(L, ttislcf(s2v(ci->func)), "caller not a C function");
-      return &G(L)->nilvalue;  /* no upvalues */
+      return &G(L)->nilvalue;  /* no upvalues 无上值 */
     }
   }
 }
@@ -90,6 +102,7 @@ static TValue *index2value (lua_State *L, int idx) {
 
 /*
 ** Convert a valid actual index (not a pseudo-index) to its address.
+** 将有效的实际索引（不是伪索引）转换为其地址。
 */
 l_sinline StkId index2stack (lua_State *L, int idx) {
   CallInfo *ci = L->ci;
@@ -98,7 +111,7 @@ l_sinline StkId index2stack (lua_State *L, int idx) {
     api_check(L, o < L->top, "invalid index");
     return o;
   }
-  else {    /* non-positive index */
+  else {    /* non-positive index 负的索引 */
     api_check(L, idx != 0 && -idx <= L->top - (ci->func + 1), "invalid index");
     api_check(L, !ispseudo(idx), "invalid index");
     return L->top + idx;
@@ -112,17 +125,17 @@ LUA_API int lua_checkstack (lua_State *L, int n) {
   lua_lock(L);
   ci = L->ci;
   api_check(L, n >= 0, "negative 'n'");
-  if (L->stack_last - L->top > n)  /* stack large enough? */
-    res = 1;  /* yes; check is OK */
-  else {  /* no; need to grow stack */
+  if (L->stack_last - L->top > n)  /* stack large enough? 堆栈足够大吗？ */
+    res = 1;  /* yes; check is OK 是的；检查正确*/
+  else {  /* no; need to grow stack 不是；不需要增长堆栈 */
     int inuse = cast_int(L->top - L->stack) + EXTRA_STACK;
-    if (inuse > LUAI_MAXSTACK - n)  /* can grow without overflow? */
+    if (inuse > LUAI_MAXSTACK - n)  /* can grow without overflow? 可以在没有溢出的情况下增长？ */
       res = 0;  /* no */
-    else  /* try to grow stack */
+    else  /* try to grow stack 尝试增长堆栈 */
       res = luaD_growstack(L, n, 0);
   }
   if (res && ci->top < L->top + n)
-    ci->top = L->top + n;  /* adjust frame top */
+    ci->top = L->top + n;  /* adjust frame top 调整到框架的顶 */
   lua_unlock(L);
   return res;
 }
@@ -138,7 +151,7 @@ LUA_API void lua_xmove (lua_State *from, lua_State *to, int n) {
   from->top -= n;
   for (i = 0; i < n; i++) {
     setobjs2s(to, to->top, from->top + i);
-    to->top++;  /* stack already checked by previous 'api_check' */
+    to->top++;  /* stack already checked by previous 'api_check' 堆栈已由上一个 'api_check' 检查 */
   }
   lua_unlock(to);
 }
@@ -163,11 +176,13 @@ LUA_API lua_Number lua_version (lua_State *L) {
 
 /*
 ** basic stack manipulation
+** 基本堆栈操作
 */
 
 
 /*
 ** convert an acceptable stack index into an absolute index
+** 将可接受的堆栈索引转换为绝对索引
 */
 LUA_API int lua_absindex (lua_State *L, int idx) {
   return (idx > 0 || ispseudo(idx))
@@ -184,7 +199,7 @@ LUA_API int lua_gettop (lua_State *L) {
 LUA_API void lua_settop (lua_State *L, int idx) {
   CallInfo *ci;
   StkId func, newtop;
-  ptrdiff_t diff;  /* difference for new top */
+  ptrdiff_t diff;  /* difference for new top 新顶部的差异 */
   lua_lock(L);
   ci = L->ci;
   func = ci->func;
@@ -192,11 +207,11 @@ LUA_API void lua_settop (lua_State *L, int idx) {
     api_check(L, idx <= ci->top - (func + 1), "new top too large");
     diff = ((func + 1) + idx) - L->top;
     for (; diff > 0; diff--)
-      setnilvalue(s2v(L->top++));  /* clear new slots */
+      setnilvalue(s2v(L->top++));  /* clear new slots 清除新槽 */
   }
   else {
     api_check(L, -(idx+1) <= (L->top - (func + 1)), "invalid new top");
-    diff = idx + 1;  /* will "subtract" index (as it is negative) */
+    diff = idx + 1;  /* will "subtract" index (as it is negative) 将“减去”索引（因为它是负数）*/
   }
   api_check(L, L->tbclist < L->top, "previous pop of an unclosed slot");
   newtop = L->top + diff;
@@ -204,7 +219,7 @@ LUA_API void lua_settop (lua_State *L, int idx) {
     lua_assert(hastocloseCfunc(ci->nresults));
     luaF_close(L, newtop, CLOSEKTOP, 0);
   }
-  L->top = newtop;  /* correct top only after closing any upvalue */
+  L->top = newtop;  /* correct top only after closing any upvalue 仅在关闭任何上值后才更正顶部 */
   lua_unlock(L);
 }
 
@@ -216,7 +231,7 @@ LUA_API void lua_closeslot (lua_State *L, int idx) {
   api_check(L, hastocloseCfunc(L->ci->nresults) && L->tbclist == level,
      "no variable to close at given level");
   luaF_close(L, level, CLOSEKTOP, 0);
-  level = index2stack(L, idx);  /* stack may be moved */
+  level = index2stack(L, idx);  /* stack may be moved 可以移动堆栈 */
   setnilvalue(s2v(level));
   lua_unlock(L);
 }
@@ -225,8 +240,11 @@ LUA_API void lua_closeslot (lua_State *L, int idx) {
 /*
 ** Reverse the stack segment from 'from' to 'to'
 ** (auxiliary to 'lua_rotate')
+** 将堆栈段从 ‘from’ 到 ‘to’ （辅助于‘lua_rotate’）
 ** Note that we move(copy) only the value inside the stack.
+** 注意，我们只在堆栈中移动（复制）值。
 ** (We do not move additional fields that may exist.)
+** （我们不会移动可能存在的其他字段。）
 */
 l_sinline void reverse (lua_State *L, StkId from, StkId to) {
   for (; from < to; from++, to--) {
@@ -245,13 +263,13 @@ l_sinline void reverse (lua_State *L, StkId from, StkId to) {
 LUA_API void lua_rotate (lua_State *L, int idx, int n) {
   StkId p, t, m;
   lua_lock(L);
-  t = L->top - 1;  /* end of stack segment being rotated */
-  p = index2stack(L, idx);  /* start of segment */
+  t = L->top - 1;  /* end of stack segment being rotated 正在旋转的堆栈段末端 */
+  p = index2stack(L, idx);  /* start of segment 段的起点 */
   api_check(L, (n >= 0 ? n : -n) <= (t - p + 1), "invalid 'n'");
-  m = (n >= 0 ? t - n : p - n - 1);  /* end of prefix */
-  reverse(L, p, m);  /* reverse the prefix with length 'n' */
-  reverse(L, m + 1, t);  /* reverse the suffix */
-  reverse(L, p, t);  /* reverse the entire segment */
+  m = (n >= 0 ? t - n : p - n - 1);  /* end of prefix 前缀结尾 */
+  reverse(L, p, m);  /* reverse the prefix with length 'n' 反转长度为‘n’的前缀 */
+  reverse(L, m + 1, t);  /* reverse the suffix 反转后缀 */
+  reverse(L, p, t);  /* reverse the entire segment 反转整个段 */
   lua_unlock(L);
 }
 
@@ -263,10 +281,12 @@ LUA_API void lua_copy (lua_State *L, int fromidx, int toidx) {
   to = index2value(L, toidx);
   api_check(L, isvalid(L, to), "invalid index");
   setobj(L, to, fr);
-  if (isupvalue(toidx))  /* function upvalue? */
+  if (isupvalue(toidx))  /* function upvalue? 是否为上值函数 */
     luaC_barrier(L, clCvalue(s2v(L->ci->func)), fr);
-  /* LUA_REGISTRYINDEX does not need gc barrier
-     (collector revisits it before finishing collection) */
+  /* LUA_REGISTRYINDEX does not need gc barrier 不需要gc屏障
+     (collector revisits it before finishing collection) 
+    （收藏者在完成收集之前重新查看它）
+  */
   lua_unlock(L);
 }
 
@@ -282,6 +302,7 @@ LUA_API void lua_pushvalue (lua_State *L, int idx) {
 
 /*
 ** access functions (stack -> C)
+** 访问函数 (stack -> C)
 */
 
 
@@ -339,15 +360,18 @@ LUA_API int lua_rawequal (lua_State *L, int index1, int index2) {
 LUA_API void lua_arith (lua_State *L, int op) {
   lua_lock(L);
   if (op != LUA_OPUNM && op != LUA_OPBNOT)
-    api_checknelems(L, 2);  /* all other operations expect two operands */
-  else {  /* for unary operations, add fake 2nd operand */
+    api_checknelems(L, 2);  /* all other operations expect two operands 所有其他操作都需要两个操作数 */
+  else {  /* for unary operations, add fake 2nd operand 对于一元运算，添加伪第二个操作数 */
     api_checknelems(L, 1);
     setobjs2s(L, L->top, L->top - 1);
     api_incr_top(L);
   }
-  /* first operand at top - 2, second at top - 1; result go to top - 2 */
+  /* 
+      first operand at top - 2, second at top - 1; result go to top - 2 
+      第一个操作数位于 top-2，第二个操作数在 top-1； 结果进入 top-2
+  */
   luaO_arith(L, op, s2v(L->top - 2), s2v(L->top - 1), L->top - 2);
-  L->top--;  /* remove second operand */
+  L->top--;  /* remove second operand 删除第二个操作数 */
   lua_unlock(L);
 }
 
@@ -356,7 +380,7 @@ LUA_API int lua_compare (lua_State *L, int index1, int index2, int op) {
   const TValue *o1;
   const TValue *o2;
   int i = 0;
-  lua_lock(L);  /* may call tag method */
+  lua_lock(L);  /* may call tag method 可以调用标记方法 */
   o1 = index2value(L, index1);
   o2 = index2value(L, index2);
   if (isvalid(L, o1) && isvalid(L, o2)) {
@@ -411,14 +435,14 @@ LUA_API const char *lua_tolstring (lua_State *L, int idx, size_t *len) {
   lua_lock(L);
   o = index2value(L, idx);
   if (!ttisstring(o)) {
-    if (!cvt2str(o)) {  /* not convertible? */
+    if (!cvt2str(o)) {  /* not convertible? 不可转换？ */
       if (len != NULL) *len = 0;
       lua_unlock(L);
       return NULL;
     }
     luaO_tostring(L, o);
     luaC_checkGC(L);
-    o = index2value(L, idx);  /* previous call may reallocate the stack */
+    o = index2value(L, idx);  /* previous call may reallocate the stack 先前的调用可能会重新分配堆栈 */
   }
   if (len != NULL)
     *len = vslen(o);
@@ -444,7 +468,7 @@ LUA_API lua_CFunction lua_tocfunction (lua_State *L, int idx) {
   if (ttislcf(o)) return fvalue(o);
   else if (ttisCclosure(o))
     return clCvalue(o)->f;
-  else return NULL;  /* not a C function */
+  else return NULL;  /* not a C function 不是一个C函数 */
 }
 
 

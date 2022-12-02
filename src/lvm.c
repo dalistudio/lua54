@@ -1,6 +1,7 @@
 /*
 ** $Id: lvm.c $
 ** Lua virtual machine
+** Lua 虚拟机
 ** See Copyright Notice in lua.h
 */
 

@@ -1,6 +1,7 @@
 /*
 ** $Id: luac.c $
 ** Lua compiler (saves bytecodes to files; also lists bytecodes)
+** Lua编译器（将字节码保存到文件中；同时列出字节码）
 ** See Copyright Notice in lua.h
 */
 
@@ -28,15 +29,15 @@
 static void PrintFunction(const Proto* f, int full);
 #define luaU_print	PrintFunction
 
-#define PROGNAME	"luac"		/* default program name */
-#define OUTPUT		PROGNAME ".out"	/* default output file */
+#define PROGNAME	"luac"		/* default program name 默认程序名称 */
+#define OUTPUT		PROGNAME ".out"	/* default output file 默认输出文件 */
 
-static int listing=0;			/* list bytecodes? */
-static int dumping=1;			/* dump bytecodes? */
-static int stripping=0;			/* strip debug information? */
-static char Output[]={ OUTPUT };	/* default output file name */
-static const char* output=Output;	/* actual output file name */
-static const char* progname=PROGNAME;	/* actual program name */
+static int listing=0;			/* list bytecodes? 列出字节码？*/
+static int dumping=1;			/* dump bytecodes? 转储字节码？*/
+static int stripping=0;			/* strip debug information? 剥离调试信息？ */
+static char Output[]={ OUTPUT };	/* default output file name 默认输出文件名 */
+static const char* output=Output;	/* actual output file name 实际输出文件名 */
+static const char* progname=PROGNAME;	/* actual program name 实际程序名 */
 static TString **tmname;
 
 static void fatal(const char* message)
@@ -54,7 +55,7 @@ static void cannot(const char* what)
 static void usage(const char* message)
 {
  if (*message=='-')
-  fprintf(stderr,"%s: unrecognized option '%s'\n",progname,message);
+  fprintf(stderr,"%s: unrecognized option '%s'\n",progname,message); // 无法识别的选项
  else
   fprintf(stderr,"%s: %s\n",progname,message);
  fprintf(stderr,

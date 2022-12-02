@@ -1,6 +1,7 @@
 /*
 ** $Id: ldblib.c $
 ** Interface from Lua to its debug API
+** Lua与其调用API的接口
 ** See Copyright Notice in lua.h
 */
 
@@ -23,6 +24,7 @@
 /*
 ** The hook table at registry[HOOKKEY] maps threads to their current
 ** hook function.
+** registry[HOOKKEY]中的钩子表将线程映射到其当前的钩子函数。
 */
 static const char *const HOOKKEY = "_HOOKKEY";
 
@@ -31,6 +33,7 @@ static const char *const HOOKKEY = "_HOOKKEY";
 ** If L1 != L, L1 can be in any state, and therefore there are no
 ** guarantees about its stack space; any push in L1 must be
 ** checked.
+** 如果 L1 != L, L1可以处于任何状态，因此不能保证其堆栈空间；必须检查任何压入L1。
 */
 static void checkstack (lua_State *L, lua_State *L1, int n) {
   if (l_unlikely(L != L1 && !lua_checkstack(L1, n)))
@@ -47,7 +50,7 @@ static int db_getregistry (lua_State *L) {
 static int db_getmetatable (lua_State *L) {
   luaL_checkany(L, 1);
   if (!lua_getmetatable(L, 1)) {
-    lua_pushnil(L);  /* no metatable */
+    lua_pushnil(L);  /* no metatable 无元表 */
   }
   return 1;
 }
@@ -58,7 +61,7 @@ static int db_setmetatable (lua_State *L) {
   luaL_argexpected(L, t == LUA_TNIL || t == LUA_TTABLE, 2, "nil or table");
   lua_settop(L, 2);
   lua_setmetatable(L, 1);
-  return 1;  /* return 1st argument */
+  return 1;  /* return 1st argument 返回第一个参数 */
 }
 
 
@@ -90,6 +93,8 @@ static int db_setuservalue (lua_State *L) {
 ** an optional thread as function's first argument and set 'arg' with
 ** 1 if this argument is present (so that functions can skip it to
 ** access their other arguments)
+** 几个库函数使用的辅助函数：检查可选线程作为函数的第一个参数，如果存在此参数，则将'arg'设置为1
+** （这样函数可以跳过它来方为其他参数）
 */
 static lua_State *getthread (lua_State *L, int *arg) {
   if (lua_isthread(L, 1)) {
@@ -98,7 +103,7 @@ static lua_State *getthread (lua_State *L, int *arg) {
   }
   else {
     *arg = 0;
-    return L;  /* function will operate over current thread */
+    return L;  /* function will operate over current thread 函数将在当前线程上运行 */
   }
 }
 
@@ -107,6 +112,8 @@ static lua_State *getthread (lua_State *L, int *arg) {
 ** Variations of 'lua_settable', used by 'db_getinfo' to put results
 ** from 'lua_getinfo' into result table. Key is always a string;
 ** value can be a string, an int, or a boolean.
+** 'lua_settable'的变体，由'db_getinfo'用于将'lua_getinfo'中的结果放入结果表。
+** Key始终是字符串；Value是string、int或boolean。
 */
 static void settabss (lua_State *L, const char *k, const char *v) {
   lua_pushstring(L, v);
@@ -169,7 +176,7 @@ static int db_getinfo (lua_State *L) {
   lua_newtable(L);  /* table to collect results */
   if (strchr(options, 'S')) {
     lua_pushlstring(L, ar.source, ar.srclen);
-    lua_setfield(L, -2, "source");
+    lua_setfield(L, -2, "source"); 
     settabss(L, "short_src", ar.short_src);
     settabsi(L, "linedefined", ar.linedefined);
     settabsi(L, "lastlinedefined", ar.lastlinedefined);

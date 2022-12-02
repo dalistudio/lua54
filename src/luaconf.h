@@ -1,6 +1,7 @@
 /*
 ** $Id: luaconf.h $
 ** Configuration file for Lua
+** Lua的配置文件
 ** See Copyright Notice in lua.h
 */
 
@@ -15,6 +16,7 @@
 /*
 ** ===================================================================
 ** General Configuration File for Lua
+** Lua的常规配置文件
 **
 ** Some definitions here can be changed externally, through the compiler
 ** (e.g., with '-D' options): They are commented out or protected
@@ -23,8 +25,12 @@
 ** Lua ABI (by making the changes here, you ensure that all software
 ** connected to Lua, such as C libraries, will be compiled with the same
 ** configuration); or because they are seldom changed.
+** 这里的一些定义可以通过编译器从外部更改（例如，使用'-D'选项）：它们被注释掉或受'#if !defined'的防护。
+** 然而，其他几个定义应该在这里直接更改，要么是因为它们会影响Lua ABI（通过在这里进行更改，您可以确保所有链接到
+** Lua的软件，如C库，都将使用相同的配置进行编译）；或者因为它们很少改变。 
 **
 ** Search for "@@" to find all configurable definitions.
+** 搜索 "@@" 以查找所有可配置的定义。
 ** ===================================================================
 */
 
@@ -33,6 +39,7 @@
 ** {====================================================================
 ** System Configuration: macros to adapt (if needed) Lua to some
 ** particular platform, for instance restricting it to C89.
+** 系统配置：使Lua适应某些特定平台的宏（如果需要），例如将其限制为C89
 ** =====================================================================
 */
 
