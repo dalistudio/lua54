@@ -8,17 +8,17 @@
 #define ldblib_c
 #define LUA_LIB
 
-#include "lprefix.h"
+#include "../src/lprefix.h"
 
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "lua.h"
+#include "../src/lua.h"
 
-#include "lauxlib.h"
-#include "lualib.h"
+#include "../src/lauxlib.h"
+#include "../src/lualib.h"
 
 
 /*
@@ -462,23 +462,23 @@ static int db_setcstacklimit (lua_State *L) {
 
 
 static const luaL_Reg dblib[] = {
-  {"debug", db_debug},
-  {"getuservalue", db_getuservalue},
-  {"gethook", db_gethook},
-  {"getinfo", db_getinfo},
-  {"getlocal", db_getlocal},
-  {"getregistry", db_getregistry},
-  {"getmetatable", db_getmetatable},
-  {"getupvalue", db_getupvalue},
-  {"upvaluejoin", db_upvaluejoin},
-  {"upvalueid", db_upvalueid},
-  {"setuservalue", db_setuservalue},
-  {"sethook", db_sethook},
-  {"setlocal", db_setlocal},
-  {"setmetatable", db_setmetatable},
-  {"setupvalue", db_setupvalue},
-  {"traceback", db_traceback},
-  {"setcstacklimit", db_setcstacklimit},
+  {"debug", db_debug}, // 调试
+  {"getuservalue", db_getuservalue}, // 获得用户值
+  {"gethook", db_gethook}, // 获得钩子
+  {"getinfo", db_getinfo}, // 获得信息
+  {"getlocal", db_getlocal}, // 获得本地
+  {"getregistry", db_getregistry}, //获得注册表
+  {"getmetatable", db_getmetatable}, // 获得元表
+  {"getupvalue", db_getupvalue}, // 获得上值
+  {"upvaluejoin", db_upvaluejoin}, // 上值联合
+  {"upvalueid", db_upvalueid}, // 上值编号
+  {"setuservalue", db_setuservalue}, // 设置用户值
+  {"sethook", db_sethook}, // 设置钩子
+  {"setlocal", db_setlocal}, // 设置本地
+  {"setmetatable", db_setmetatable}, // 设置元表
+  {"setupvalue", db_setupvalue}, // 设置上值
+  {"traceback", db_traceback}, // 追溯
+  {"setcstacklimit", db_setcstacklimit}, // 设置堆栈限制
   {NULL, NULL}
 };
 

@@ -1,6 +1,7 @@
 /*
 ** $Id: lobject.c $
 ** Some generic functions over Lua objects
+** Lua 对象上的一些泛型函数
 ** See Copyright Notice in lua.h
 */
 

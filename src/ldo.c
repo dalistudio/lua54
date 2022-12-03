@@ -41,7 +41,7 @@
 
 /*
 ** {======================================================
-** Error-recovery functions
+** Error-recovery functions 错误恢复功能
 ** =======================================================
 */
 
@@ -155,7 +155,7 @@ int luaD_rawrunprotected (lua_State *L, Pfunc f, void *ud) {
 
 /*
 ** {==================================================================
-** Stack reallocation
+** Stack reallocation 堆栈重新分配
 ** ===================================================================
 */
 static void correctstack (lua_State *L, StkId oldstack, StkId newstack) {

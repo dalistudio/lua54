@@ -1,6 +1,7 @@
 /*
 ** $Id: llex.h $
 ** Lexical Analyzer
+** 词汇分析器
 ** See Copyright Notice in lua.h
 */
 
@@ -16,6 +17,7 @@
 /*
 ** Single-char tokens (terminal symbols) are represented by their own
 ** numeric code. Other tokens start at the following value.
+** 单字符标记
 */
 #define FIRST_RESERVED	(UCHAR_MAX + 1)
 

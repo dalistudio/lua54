@@ -8,15 +8,15 @@
 #define lcorolib_c
 #define LUA_LIB
 
-#include "lprefix.h"
+#include "../src/lprefix.h"
 
 
 #include <stdlib.h>
 
-#include "lua.h"
+#include "../src/lua.h"
 
-#include "lauxlib.h"
-#include "lualib.h"
+#include "../src/lauxlib.h"
+#include "../src/lualib.h"
 
 
 static lua_State *getco (lua_State *L) {

@@ -1,6 +1,7 @@
 /*
 ** $Id: lopnames.h $
 ** Opcode names
+** 操作码名称
 ** See Copyright Notice in lua.h
 */
 

@@ -7,7 +7,7 @@
 #define liolib_c
 #define LUA_LIB
 
-#include "lprefix.h"
+#include "../src/lprefix.h"
 
 
 #include <ctype.h>
@@ -17,10 +17,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lua.h"
+#include "../src/lua.h"
 
-#include "lauxlib.h"
-#include "lualib.h"
+#include "../src/lauxlib.h"
+#include "../src/lualib.h"
 
 
 
@@ -28,15 +28,22 @@
 /*
 ** Change this macro to accept other modes for 'fopen' besides
 ** the standard ones.
+** 更改此宏以接受除标准模式外的其他'fopen'模式
 */
 #if !defined(l_checkmode)
 
-/* accepted extensions to 'mode' in 'fopen' */
+/* 
+   accepted extensions to 'mode' in 'fopen' 
+   已接受'fopen'中的'mode'扩展
+*/
 #if !defined(L_MODEEXT)
 #define L_MODEEXT	"b"
 #endif
 
-/* Check whether 'mode' matches '[rwa]%+?[L_MODEEXT]*' */
+/* 
+   Check whether 'mode' matches '[rwa]%+?[L_MODEEXT]*' 
+   检查'mode'是否与'[rwa]%+?[L_MODEEXT]*'匹配。
+*/
 static int l_checkmode (const char *mode) {
   return (*mode != '\0' && strchr("rwa", *(mode++)) != NULL &&
          (*mode != '+' || ((void)(++mode), 1)) &&  /* skip if char is '+' */
@@ -49,6 +56,7 @@ static int l_checkmode (const char *mode) {
 ** {======================================================
 ** l_popen spawns a new process connected to the current
 ** one through the file streams.
+** l_popen通过文件流生成一个连接到当前进程的新进程。
 ** =======================================================
 */
 
@@ -110,6 +118,7 @@ static int l_checkmode (const char *mode) {
 /*
 ** {======================================================
 ** l_fseek: configuration for longer offsets
+** l_fseek: 较长偏移的配置
 ** =======================================================
 */
 
@@ -165,7 +174,7 @@ static int io_type (lua_State *L) {
   luaL_checkany(L, 1);
   p = (LStream *)luaL_testudata(L, 1, LUA_FILEHANDLE);
   if (p == NULL)
-    luaL_pushfail(L);  /* not a file */
+    luaL_pushfail(L);  /* not a file 不是一个文件 */
   else if (isclosed(p))
     lua_pushliteral(L, "closed file");
   else
@@ -197,10 +206,11 @@ static FILE *tofile (lua_State *L) {
 ** When creating file handles, always creates a 'closed' file handle
 ** before opening the actual file; so, if there is a memory error, the
 ** handle is in a consistent state.
+** 创建文件句柄时，始终在打开实际文件之前创建一个'closed'的文件句柄；因此，如果存在内存错误，则句柄处于一致状态。
 */
 static LStream *newprefile (lua_State *L) {
   LStream *p = (LStream *)lua_newuserdatauv(L, sizeof(LStream), 0);
-  p->closef = NULL;  /* mark file handle as 'closed' */
+  p->closef = NULL;  /* mark file handle as 'closed' 将文件句柄标记为'closed' */
   luaL_setmetatable(L, LUA_FILEHANDLE);
   return p;
 }
@@ -210,24 +220,25 @@ static LStream *newprefile (lua_State *L) {
 ** Calls the 'close' function from a file handle. The 'volatile' avoids
 ** a bug in some versions of the Clang compiler (e.g., clang 3.0 for
 ** 32 bits).
+** 从文件句柄调用'close'函数。'volatile'避免了某些版本Clang编译器中的错误。（例如，32位的Clang3.0）
 */
 static int aux_close (lua_State *L) {
   LStream *p = tolstream(L);
   volatile lua_CFunction cf = p->closef;
-  p->closef = NULL;  /* mark stream as closed */
-  return (*cf)(L);  /* close it */
+  p->closef = NULL;  /* mark stream as closed 将流标记为关闭 */
+  return (*cf)(L);  /* close it 关闭它 */
 }
 
 
 static int f_close (lua_State *L) {
-  tofile(L);  /* make sure argument is an open stream */
+  tofile(L);  /* make sure argument is an open stream 确保参数时开放流 */
   return aux_close(L);
 }
 
 
 static int io_close (lua_State *L) {
-  if (lua_isnone(L, 1))  /* no argument? */
-    lua_getfield(L, LUA_REGISTRYINDEX, IO_OUTPUT);  /* use default output */
+  if (lua_isnone(L, 1))  /* no argument? 没有争论？ */
+    lua_getfield(L, LUA_REGISTRYINDEX, IO_OUTPUT);  /* use default output 使用默认输出 */
   return f_close(L);
 }
 
@@ -235,13 +246,14 @@ static int io_close (lua_State *L) {
 static int f_gc (lua_State *L) {
   LStream *p = tolstream(L);
   if (!isclosed(p) && p->f != NULL)
-    aux_close(L);  /* ignore closed and incompletely open files */
+    aux_close(L);  /* ignore closed and incompletely open files 忽略已关闭和未完全打开的文件 */
   return 0;
 }
 
 
 /*
 ** function to close regular files
+** 关闭常规文件的函数
 */
 static int io_fclose (lua_State *L) {
   LStream *p = tolstream(L);
@@ -279,6 +291,7 @@ static int io_open (lua_State *L) {
 
 /*
 ** function to close 'popen' files
+** 关闭'popen'文件的函数
 */
 static int io_pclose (lua_State *L) {
   LStream *p = tolstream(L);
@@ -321,12 +334,12 @@ static int g_iofile (lua_State *L, const char *f, const char *mode) {
     if (filename)
       opencheck(L, filename, mode);
     else {
-      tofile(L);  /* check that it's a valid file handle */
+      tofile(L);  /* check that it's a valid file handle 检查它是否是有效的文件句柄 */
       lua_pushvalue(L, 1);
     }
     lua_setfield(L, LUA_REGISTRYINDEX, f);
   }
-  /* return current value */
+  /* return current value 返回当前值 */
   lua_getfield(L, LUA_REGISTRYINDEX, f);
   return 1;
 }
@@ -739,32 +752,33 @@ static int f_flush (lua_State *L) {
 ** functions for 'io' library
 */
 static const luaL_Reg iolib[] = {
-  {"close", io_close},
-  {"flush", io_flush},
-  {"input", io_input},
-  {"lines", io_lines},
-  {"open", io_open},
-  {"output", io_output},
-  {"popen", io_popen},
-  {"read", io_read},
-  {"tmpfile", io_tmpfile},
-  {"type", io_type},
-  {"write", io_write},
+  {"close", io_close}, // 关闭
+  {"flush", io_flush}, // 刷新
+  {"input", io_input}, // 输入
+  {"lines", io_lines}, // 行
+  {"open", io_open}, // 打开
+  {"output", io_output}, // 输出
+  {"popen", io_popen}, // 
+  {"read", io_read}, //读取
+  {"tmpfile", io_tmpfile}, // 临时文件
+  {"type", io_type}, // 类型
+  {"write", io_write}, // 写入
   {NULL, NULL}
 };
 
 
 /*
 ** methods for file handles
+** 文件句柄的方法
 */
 static const luaL_Reg meth[] = {
-  {"read", f_read},
-  {"write", f_write},
-  {"lines", f_lines},
-  {"flush", f_flush},
-  {"seek", f_seek},
-  {"close", f_close},
-  {"setvbuf", f_setvbuf},
+  {"read", f_read}, // 读取
+  {"write", f_write}, // 写入
+  {"lines", f_lines}, // 行
+  {"flush", f_flush}, // 刷新
+  {"seek", f_seek}, // 寻找
+  {"close", f_close}, // 关闭
+  {"setvbuf", f_setvbuf}, // 
   {NULL, NULL}
 };
 
@@ -820,9 +834,9 @@ LUAMOD_API int luaopen_io (lua_State *L) {
   luaL_newlib(L, iolib);  /* new module */
   createmeta(L);
   /* create (and set) default files */
-  createstdfile(L, stdin, IO_INPUT, "stdin");
-  createstdfile(L, stdout, IO_OUTPUT, "stdout");
-  createstdfile(L, stderr, NULL, "stderr");
+  createstdfile(L, stdin, IO_INPUT, "stdin"); // 标准输入
+  createstdfile(L, stdout, IO_OUTPUT, "stdout"); // 标准输出
+  createstdfile(L, stderr, NULL, "stderr"); // 标准错误输出
   return 1;
 }
 

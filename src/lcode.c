@@ -1,6 +1,7 @@
 /*
 ** $Id: lcode.c $
 ** Code generator for Lua
+** Lua代码生成器
 ** See Copyright Notice in lua.h
 */
 
@@ -31,7 +32,10 @@
 #include "lvm.h"
 
 
-/* Maximum number of registers in a Lua function (must fit in 8 bits) */
+/* 
+   Maximum number of registers in a Lua function (must fit in 8 bits) 
+   Lua函数中的最大寄存器数（必须适合8位）
+*/
 #define MAXREGS		255
 
 
@@ -42,7 +46,7 @@ static int codesJ (FuncState *fs, OpCode o, int sj, int k);
 
 
 
-/* semantic error */
+/* semantic error 语义错误 */
 l_noret luaK_semerror (LexState *ls, const char *msg) {
   ls->t.token = 0;  /* remove "near <token>" from final message */
   luaX_syntaxerror(ls, msg);
@@ -52,10 +56,11 @@ l_noret luaK_semerror (LexState *ls, const char *msg) {
 /*
 ** If expression is a numeric constant, fills 'v' with its value
 ** and returns 1. Otherwise, returns 0.
+** 如果表达式是数值常量，则用其值填充'v'并返回1。否则，返回0
 */
 static int tonumeral (const expdesc *e, TValue *v) {
   if (hasjumps(e))
-    return 0;  /* not a numeral */
+    return 0;  /* not a numeral 不是数字 */
   switch (e->k) {
     case VKINT:
       if (v) setivalue(v, e->u.ival);
@@ -70,6 +75,7 @@ static int tonumeral (const expdesc *e, TValue *v) {
 
 /*
 ** Get the constant value from a constant expression
+** 从常量表达式中获取常量值
 */
 static TValue *const2val (FuncState *fs, const expdesc *e) {
   lua_assert(e->k == VCONST);
@@ -80,10 +86,11 @@ static TValue *const2val (FuncState *fs, const expdesc *e) {
 /*
 ** If expression is a constant, fills 'v' with its value
 ** and returns 1. Otherwise, returns 0.
+** 如果表达式是常量，则用其值填充'v'并返回1。否则，返回0。
 */
 int luaK_exp2const (FuncState *fs, const expdesc *e, TValue *v) {
   if (hasjumps(e))
-    return 0;  /* not a constant */
+    return 0;  /* not a constant 不是常量 */
   switch (e->k) {
     case VFALSE:
       setbfvalue(v);

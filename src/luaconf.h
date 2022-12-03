@@ -47,15 +47,18 @@
 @@ LUA_USE_C89 controls the use of non-ISO-C89 features.
 ** Define it if you want Lua to avoid the use of a few C99 features
 ** or Windows-specific features on Windows.
+** LUA_USE_C89 控制非ISO-C89的功能使用。
+** 如果您希望Lua避免在Windows上使用一些C99功能或Windows特定功能，请定义它。
 */
 /* #define LUA_USE_C89 */
 
 
 /*
 ** By default, Lua on Windows use (some) specific Windows features
+** 默认情况下，Lua在Windows上使用（某些）特定的Windows功能。
 */
 #if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
-#define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
+#define LUA_USE_WINDOWS  /* enable goodies for regular Windows 为常规Windows启用goodies */
 #endif
 
 
@@ -91,37 +94,47 @@
 ** Configuration for Number types. These options should not be
 ** set externally, because any other code connected to Lua must
 ** use the same configuration.
+** 数值类型的配置。这些选项不应该在外部设置，
+** 因为连接到Lua的任何其他代码都必须使用相同的配置。
 ** ===================================================================
 */
 
 /*
 @@ LUA_INT_TYPE defines the type for Lua integers.
+** LUA_INT_TYPE 定义Lua整数的类型
 @@ LUA_FLOAT_TYPE defines the type for Lua floats.
+** LUA_FLOAT_TYPE 定义Lua浮点数的类型
 ** Lua should work fine with any mix of these options supported
 ** by your C compiler. The usual configurations are 64-bit integers
 ** and 'double' (the default), 32-bit integers and 'float' (for
 ** restricted platforms), and 'long'/'double' (for C compilers not
 ** compliant with C99, which may not have support for 'long long').
+** Lua可以很好地使用C编译器支持的这些选项的任何组合。通常的配置是64位整数和'double'（默认值）
+** 32位整数和'float'（对于受限平台）以及'long'/'double'（对于不符合C99的C编译器，可能不支持'long long'）
 */
 
-/* predefined options for LUA_INT_TYPE */
+/* predefined options for LUA_INT_TYPE 预定义选项*/
 #define LUA_INT_INT		1
 #define LUA_INT_LONG		2
 #define LUA_INT_LONGLONG	3
 
-/* predefined options for LUA_FLOAT_TYPE */
+/* predefined options for LUA_FLOAT_TYPE 预定义选项*/
 #define LUA_FLOAT_FLOAT		1
 #define LUA_FLOAT_DOUBLE	2
 #define LUA_FLOAT_LONGDOUBLE	3
 
 
-/* Default configuration ('long long' and 'double', for 64-bit Lua) */
+/* 
+   Default configuration ('long long' and 'double', for 64-bit Lua) 
+   默认配置（'long long' 和 'double' 用于64位Lua）
+*/
 #define LUA_INT_DEFAULT		LUA_INT_LONGLONG
 #define LUA_FLOAT_DEFAULT	LUA_FLOAT_DOUBLE
 
 
 /*
 @@ LUA_32BITS enables Lua with 32-bit integers and 32-bit floats.
+** LUA_32BITS Lua启用32位整数和32位浮点数
 */
 #define LUA_32BITS	0
 
@@ -130,6 +143,8 @@
 @@ LUA_C89_NUMBERS ensures that Lua uses the largest types available for
 ** C89 ('long' and 'double'); Windows always has '__int64', so it does
 ** not need to use this case.
+** LUA_C89_NUMBERS 确保Lua使用C89可用的最大类型（'long' 和 'double'）
+** Windows始终具有'__int64'，因此不需要使用这种情况。
 */
 #if defined(LUA_USE_C89) && !defined(LUA_USE_WINDOWS)
 #define LUA_C89_NUMBERS		1
@@ -171,16 +186,18 @@
 
 /*
 ** {==================================================================
-** Configuration for Paths.
+** Configuration for Paths. 路径配置
 ** ===================================================================
 */
 
 /*
 ** LUA_PATH_SEP is the character that separates templates in a path.
-** LUA_PATH_MARK is the string that marks the substitution points in a
-** template.
-** LUA_EXEC_DIR in a Windows path is replaced by the executable's
-** directory.
+** LUA_PATH_SEP 是分隔路径中模板的字符。
+** LUA_PATH_MARK is the string that marks the substitution points in a template.
+** LUA_PATH_MARK 是标记模板中替代点的字符串
+** LUA_EXEC_DIR in a Windows path is replaced by the executable's directory.
+** 在Windows 路径中的 LUA_EXEC_DIR 替换可执行文件的目录
+**
 */
 #define LUA_PATH_SEP            ";"
 #define LUA_PATH_MARK           "?"
@@ -188,13 +205,14 @@
 
 
 /*
-@@ LUA_PATH_DEFAULT is the default path that Lua uses to look for
-** Lua libraries.
-@@ LUA_CPATH_DEFAULT is the default path that Lua uses to look for
-** C libraries.
+@@ LUA_PATH_DEFAULT is the default path that Lua uses to look for Lua libraries.
+** LUA_PATH_DEFAULT 是Lua用于查找Lua语言库的默认路径
+@@ LUA_CPATH_DEFAULT is the default path that Lua uses to look for C libraries.
+** LUA_CPATH_DEFAULT 是Lua用于查找C库的默认路径
 ** CHANGE them if your machine has a non-conventional directory
 ** hierarchy or if you want to install your libraries in
 ** non-conventional directories.
+** 如果您的计算机具有非常规目录层次结构，或者您想在非常规目录中安装库，请更改它们。
 */
 
 #define LUA_VDIR	LUA_VERSION_MAJOR "." LUA_VERSION_MINOR
@@ -264,6 +282,7 @@
 /*
 ** {==================================================================
 ** Marks for exported symbols in the C code
+** C代码中导出符号的标记
 ** ===================================================================
 */
 
@@ -328,6 +347,7 @@
 /*
 ** {==================================================================
 ** Compatibility with previous versions
+** 与以前版本的兼容性
 ** ===================================================================
 */
 
@@ -388,6 +408,8 @@
 ** Configuration for Numbers (low-level part).
 ** Change these definitions if no predefined LUA_FLOAT_* / LUA_INT_*
 ** satisfy your needs.
+** 数值的配置（低级部分）
+** 如果没有预定义的 LUA_FLOAT_* 或 LUA_INT_* 满足您的需求，请更改这些定义。
 ** ===================================================================
 */
 
@@ -578,6 +600,7 @@
 /*
 ** {==================================================================
 ** Dependencies with C99 and other C details
+** C99和其他C详情的依赖性
 ** ===================================================================
 */
 
@@ -684,7 +707,10 @@
 
 
 #if defined(LUA_CORE) || defined(LUA_LIB)
-/* shorter names for Lua's own use */
+/* 
+   shorter names for Lua's own use
+   Lua 自己使用的简称
+*/
 #define l_likely(x)	luai_likely(x)
 #define l_unlikely(x)	luai_unlikely(x)
 #endif
@@ -696,15 +722,18 @@
 
 /*
 ** {==================================================================
-** Language Variations
+** Language Variations 语言变化
 ** =====================================================================
 */
 
 /*
-@@ LUA_NOCVTN2S/LUA_NOCVTS2N control how Lua performs some
-** coercions. Define LUA_NOCVTN2S to turn off automatic coercion from
-** numbers to strings. Define LUA_NOCVTS2N to turn off automatic
-** coercion from strings to numbers.
+@@ LUA_NOCVTN2S/LUA_NOCVTS2N control how Lua performs some coercions. 
+** LUA_NOCVTN2S 或 LUA_NOCVTS2N控制Lua如何执行一些强制。
+** Define LUA_NOCVTN2S to turn off automatic coercion from numbers to strings. 
+** 定义 LUA_NOCVTN2S 以关闭从数字到字符串的自动强制。
+** Define LUA_NOCVTS2N to turn off automatic coercion from strings to numbers.
+** 定义 LUA_NOCVTS2N 以关闭从字符串到数字的自动强制
+** 
 */
 /* #define LUA_NOCVTN2S */
 /* #define LUA_NOCVTS2N */
@@ -712,7 +741,9 @@
 
 /*
 @@ LUA_USE_APICHECK turns on several consistency checks on the C API.
+** LUA_USE_APICHECK 打开了C API上的几个一致性检查
 ** Define it as a help when debugging C code.
+** 将其定义为调试C代码时的帮助。
 */
 #if defined(LUA_USE_APICHECK)
 #include <assert.h>
@@ -727,15 +758,20 @@
 ** Macros that affect the API and must be stable (that is, must be the
 ** same when you compile Lua and when you compile code that links to
 ** Lua).
+** 影响API的宏必须时稳定的（即，编译Lua和编译链接到Lua的代码时必须相同）
 ** =====================================================================
 */
 
 /*
 @@ LUAI_MAXSTACK limits the size of the Lua stack.
+** LUAI_MAXSTACK 限制Lua堆栈的大小
 ** CHANGE it if you need a different limit. This limit is arbitrary;
+** 如果需要不同的限制，请更改它。该限制时任意的；
 ** its only purpose is to stop Lua from consuming unlimited stack
 ** space (and to reserve some numbers for pseudo-indices).
+** 它的唯一目的时阻止Lua消耗无限的堆栈空间（并为伪索引保留一些数字）
 ** (It must fit into max(size_t)/32.)
+** （必须符合 max(size_t)/32）
 */
 #if LUAI_IS32INT
 #define LUAI_MAXSTACK		1000000
@@ -746,8 +782,11 @@
 
 /*
 @@ LUA_EXTRASPACE defines the size of a raw memory area associated with
+** LUA_EXTRASPACE 定义与关联的原始内存区域的大小
 ** a Lua state with very fast access.
+** 一个Lua状态机，访问速度非常快。
 ** CHANGE it if you need a different size.
+** 如果您需要不同尺寸，请更改它。
 */
 #define LUA_EXTRASPACE		(sizeof(void *))
 
@@ -756,12 +795,15 @@
 @@ LUA_IDSIZE gives the maximum size for the description of the source
 @@ of a function in debug information.
 ** CHANGE it if you want a different size.
+** LUA_IDSIZE 给出调试信息中函数源描述的最大大小。
+** 如果你需要不同尺寸，请更改它。
 */
 #define LUA_IDSIZE	60
 
 
 /*
 @@ LUAL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
+** LUAL_BUFFERSIZE 是lauxlib缓冲系统使用的缓冲区大小
 */
 #define LUAL_BUFFERSIZE   ((int)(16 * sizeof(void*) * sizeof(lua_Number)))
 
@@ -769,6 +811,7 @@
 /*
 @@ LUAI_MAXALIGN defines fields that, when used in a union, ensure
 ** maximum alignment for the other items in that union.
+** 定义在联合中使用的确保该联合中其他项最大对其的字段。
 */
 #define LUAI_MAXALIGN  lua_Number n; double u; void *s; lua_Integer i; long l
 
@@ -783,6 +826,7 @@
 /*
 ** Local configuration. You can use this space to add your redefinitions
 ** without modifying the main part of the file.
+** 本地配置。您可以使用此空间添加重新定义，而无需修改文件的主要部分。
 */
 
 

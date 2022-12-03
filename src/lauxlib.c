@@ -1,6 +1,7 @@
 /*
 ** $Id: lauxlib.c $
 ** Auxiliary functions for building Lua libraries
+** 构建Lua库的辅助功能
 ** See Copyright Notice in lua.h
 */
 
@@ -20,6 +21,8 @@
 /*
 ** This file uses only the official API of Lua.
 ** Any function declared here could be written as an application function.
+** 该文件仅使用Lua的官方API
+** 这里声明的任何函数都可以写成应用函数
 */
 
 #include "lua.h"
@@ -35,13 +38,13 @@
 
 /*
 ** {======================================================
-** Traceback
+** Traceback 追溯
 ** =======================================================
 */
 
 
-#define LEVELS1	10	/* size of the first part of the stack */
-#define LEVELS2	11	/* size of the second part of the stack */
+#define LEVELS1	10	/* size of the first part of the stack 堆栈第一部分的大小 */
+#define LEVELS2	11	/* size of the second part of the stack 堆栈第二部分的大小 */
 
 
 
@@ -51,56 +54,57 @@
 */
 static int findfield (lua_State *L, int objidx, int level) {
   if (level == 0 || !lua_istable(L, -1))
-    return 0;  /* not found */
-  lua_pushnil(L);  /* start 'next' loop */
-  while (lua_next(L, -2)) {  /* for each pair in table */
-    if (lua_type(L, -2) == LUA_TSTRING) {  /* ignore non-string keys */
-      if (lua_rawequal(L, objidx, -1)) {  /* found object? */
-        lua_pop(L, 1);  /* remove value (but keep name) */
+    return 0;  /* not found 没有找到 */
+  lua_pushnil(L);  /* start 'next' loop 开始'next'循环 */
+  while (lua_next(L, -2)) {  /* for each pair in table 对于表中的每对 */
+    if (lua_type(L, -2) == LUA_TSTRING) {  /* ignore non-string keys 忽略非字符串键 */
+      if (lua_rawequal(L, objidx, -1)) {  /* found object? 找到对象？*/
+        lua_pop(L, 1);  /* remove value (but keep name) 删除值（但保留名称）*/
         return 1;
       }
-      else if (findfield(L, objidx, level - 1)) {  /* try recursively */
+      else if (findfield(L, objidx, level - 1)) {  /* try recursively 递归尝试 */
         /* stack: lib_name, lib_table, field_name (top) */
-        lua_pushliteral(L, ".");  /* place '.' between the two names */
-        lua_replace(L, -3);  /* (in the slot occupied by table) */
+        lua_pushliteral(L, ".");  /* place '.' between the two names 在两个名称之间放置'.' */
+        lua_replace(L, -3);  /* (in the slot occupied by table) 在表总占用槽 */
         lua_concat(L, 3);  /* lib_name.field_name */
         return 1;
       }
     }
-    lua_pop(L, 1);  /* remove value */
+    lua_pop(L, 1);  /* remove value 删除值 */
   }
-  return 0;  /* not found */
+  return 0;  /* not found 没有找到 */
 }
 
 
 /*
 ** Search for a name for a function in all loaded modules
+** 在所有加载的模块中搜索函数的名称
 */
 static int pushglobalfuncname (lua_State *L, lua_Debug *ar) {
   int top = lua_gettop(L);
-  lua_getinfo(L, "f", ar);  /* push function */
+  lua_getinfo(L, "f", ar);  /* push function 压入函数 */
   lua_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
   if (findfield(L, top + 1, 2)) {
     const char *name = lua_tostring(L, -1);
-    if (strncmp(name, LUA_GNAME ".", 3) == 0) {  /* name start with '_G.'? */
-      lua_pushstring(L, name + 3);  /* push name without prefix */
-      lua_remove(L, -2);  /* remove original name */
+    if (strncmp(name, LUA_GNAME ".", 3) == 0) {  /* name start with '_G.'? 名字开始是否为'_G.' */
+      lua_pushstring(L, name + 3);  /* push name without prefix 不带前缀的推送名称 */
+      lua_remove(L, -2);  /* remove original name 删除原始名称 */
     }
-    lua_copy(L, -1, top + 1);  /* copy name to proper place */
-    lua_settop(L, top + 1);  /* remove table "loaded" and name copy */
+    lua_copy(L, -1, top + 1);  /* copy name to proper place 将名称复制到正确位值 */
+    lua_settop(L, top + 1);  /* remove table "loaded" and name copy 删除表"loaded"和名称副本 */
     return 1;
   }
   else {
-    lua_settop(L, top);  /* remove function and global table */
+    lua_settop(L, top);  /* remove function and global table 删除函数和全局表 */
     return 0;
   }
 }
 
 
 static void pushfuncname (lua_State *L, lua_Debug *ar) {
-  if (pushglobalfuncname(L, ar)) {  /* try first a global name */
+  if (pushglobalfuncname(L, ar)) {  /* try first a global name 首先尝试全局名称 */
     lua_pushfstring(L, "function '%s'", lua_tostring(L, -1));
-    lua_remove(L, -2);  /* remove name */
+    lua_remove(L, -2);  /* remove name 删除名称 */
   }
   else if (*ar->namewhat != '\0')  /* is there a name from code? */
     lua_pushfstring(L, "%s '%s'", ar->namewhat, ar->name);  /* use it */
@@ -168,7 +172,7 @@ LUALIB_API void luaL_traceback (lua_State *L, lua_State *L1,
 
 /*
 ** {======================================================
-** Error-report functions
+** Error-report functions 错误报告函数
 ** =======================================================
 */
 
@@ -304,7 +308,7 @@ LUALIB_API int luaL_execresult (lua_State *L, int stat) {
 
 /*
 ** {======================================================
-** Userdata's metatable manipulation
+** Userdata's metatable manipulation 用户数据的元表操作
 ** =======================================================
 */
 
@@ -353,7 +357,7 @@ LUALIB_API void *luaL_checkudata (lua_State *L, int ud, const char *tname) {
 
 /*
 ** {======================================================
-** Argument check functions
+** Argument check functions 参数检查函数
 ** =======================================================
 */
 
@@ -459,7 +463,7 @@ LUALIB_API lua_Integer luaL_optinteger (lua_State *L, int arg,
 
 /*
 ** {======================================================
-** Generic Buffer manipulation
+** Generic Buffer manipulation 通用缓冲区操作
 ** =======================================================
 */
 
@@ -645,7 +649,7 @@ LUALIB_API char *luaL_buffinitsize (lua_State *L, luaL_Buffer *B, size_t sz) {
 
 /*
 ** {======================================================
-** Reference system
+** Reference system 参考系统
 ** =======================================================
 */
 
@@ -701,7 +705,7 @@ LUALIB_API void luaL_unref (lua_State *L, int t, int ref) {
 
 /*
 ** {======================================================
-** Load functions
+** Load functions 加载函数
 ** =======================================================
 */
 

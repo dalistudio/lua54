@@ -1,6 +1,7 @@
 /*
 ** $Id: lopcodes.h $
 ** Opcodes for Lua virtual machine
+** Lua 虚拟机的操作码
 ** See Copyright Notice in lua.h
 */
 
@@ -12,8 +13,11 @@
 
 /*===========================================================================
   We assume that instructions are unsigned 32-bit integers.
+  我们假设指令是无符号32位整数
   All instructions have an opcode in the first 7 bits.
+  所有指令的前7位都是一个操作码。
   Instructions can have the following formats:
+  指令可以有以下格式：
 
         3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0
         1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
@@ -23,17 +27,21 @@ iAsBx              sBx (signed)(17)      |     A(8)      |   Op(7)     |
 iAx                           Ax(25)                     |   Op(7)     |
 isJ                           sJ(25)                     |   Op(7)     |
 
-  A signed argument is represented in excess K: the represented value is
-  the written unsigned value minus K, where K is half the maximum for the
-  corresponding unsigned argument.
+  A signed argument is represented in excess K: 
+  有符号的参数以过量K表示：
+  the represented value is the written unsigned value minus K, 
+  表示的值是写的无符号值减去K，
+  where K is half the maximum for the corresponding unsigned argument.
+  其中K是对应无符号参数的最大值的一半。
 ===========================================================================*/
 
 
-enum OpMode {iABC, iABx, iAsBx, iAx, isJ};  /* basic instruction formats */
+enum OpMode {iABC, iABx, iAsBx, iAx, isJ};  /* basic instruction formats 基本指令格式 */
 
 
 /*
 ** size and position of opcode arguments.
+** 操作码参数的大小和位值
 */
 #define SIZE_C		8
 #define SIZE_B		8
@@ -62,6 +70,9 @@ enum OpMode {iABC, iABx, iAsBx, iAx, isJ};  /* basic instruction formats */
 ** limits for opcode arguments.
 ** we use (signed) 'int' to manipulate most arguments,
 ** so they must fit in ints.
+** 操作码参数的限制。
+** 我们使用（带符号）'int'来操作大多数参数，
+** 所以它们必须适合int
 */
 
 /* Check whether type 'int' has at least 'b' bits ('b' < 32) */
@@ -74,7 +85,7 @@ enum OpMode {iABC, iABx, iAsBx, iAx, isJ};  /* basic instruction formats */
 #define MAXARG_Bx	MAX_INT
 #endif
 
-#define OFFSET_sBx	(MAXARG_Bx>>1)         /* 'sBx' is signed */
+#define OFFSET_sBx	(MAXARG_Bx>>1)         /* 'sBx' is signed 是有符号数*/
 
 
 #if L_INTHASBITS(SIZE_Ax)
@@ -109,6 +120,7 @@ enum OpMode {iABC, iABx, iAsBx, iAx, isJ};  /* basic instruction formats */
 
 /*
 ** the following macros help to manipulate instructions
+** 以下宏有助于操作指令
 */
 
 #define GET_OPCODE(i)	(cast(OpCode, ((i)>>POS_OP) & MASK1(SIZE_OP,0)))
@@ -171,32 +183,36 @@ enum OpMode {iABC, iABx, iAsBx, iAx, isJ};  /* basic instruction formats */
 			| (cast(Instruction, k) << POS_k))
 
 
-#if !defined(MAXINDEXRK)  /* (for debugging only) */
+#if !defined(MAXINDEXRK)  /* (for debugging only) 仅用于调试 */
 #define MAXINDEXRK	MAXARG_B
 #endif
 
 
 /*
 ** invalid register that fits in 8 bits
+** 适合8位的无效寄存器
 */
 #define NO_REG		MAXARG_A
 
 
 /*
-** R[x] - register
-** K[x] - constant (in constant table)
-** RK(x) == if k(i) then K[x] else R[x]
+** R[x] - register 寄存器
+** K[x] - constant (in constant table) 常量（在常量表）
+** RK(x) == if k(i) then K[x] else R[x] 如果k(i)为K[x],否则为R[x]
 */
 
 
 /*
 ** Grep "ORDER OP" if you change these enums. Opcodes marked with a (*)
+** 如果更改这些枚举，请选择"ORDER OP"。标有(*)的操作码。
 ** has extra descriptions in the notes after the enumeration.
+** 在枚举后的注释中有额外的描述
 */
 
 typedef enum {
 /*----------------------------------------------------------------------
   name		args	description
+  名字     参数      描述
 ------------------------------------------------------------------------*/
 OP_MOVE,/*	A B	R[A] := R[B]					*/
 OP_LOADI,/*	A sBx	R[A] := sBx					*/
@@ -370,9 +386,10 @@ OP_EXTRAARG/*	Ax	extra (larger) argument for previous opcode	*/
 
 /*
 ** masks for instruction properties. The format is:
-** bits 0-2: op mode
-** bit 3: instruction set register A
-** bit 4: operator is a test (next instruction must be a jump)
+** 指令属性的掩码。格式为：
+** bits 0-2: op mode ；操作模式
+** bit 3: instruction set register A ；指令集寄存器A
+** bit 4: operator is a test (next instruction must be a jump)； 特是操作（下一指令必须跳转）
 ** bit 5: instruction uses 'L->top' set by previous instruction (when B == 0)
 ** bit 6: instruction sets 'L->top' for next instruction (when C == 0)
 ** bit 7: instruction is an MM instruction (call a metamethod)

@@ -1,6 +1,7 @@
 /*
 ** $Id: lopcodes.c $
 ** Opcodes for Lua virtual machine
+** Lua 虚拟机的操作码
 ** See Copyright Notice in lua.h
 */
 

@@ -60,7 +60,7 @@ static int currentpc (CallInfo *ci) {
 */
 static int getbaseline (const Proto *f, int pc, int *basepc) {
   if (f->sizeabslineinfo == 0 || pc < f->abslineinfo[0].pc) {
-    *basepc = -1;  /* start from the beginning */
+    *basepc = -1;  /* start from the beginning 从头开始 */
     return f->linedefined;
   }
   else {

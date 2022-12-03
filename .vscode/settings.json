@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "lprefix.h": "c",
+        "lauxlib.h": "c",
+        "lua.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "math.h": "c",
+        "lualib.h": "c",
+        "locale.h": "c",
+        "stddef.h": "c",
+        "limits.h": "c",
+        "string.h": "c"
+    }
+}

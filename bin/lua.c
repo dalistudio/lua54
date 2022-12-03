@@ -7,7 +7,7 @@
 
 #define lua_c
 
-#include "lprefix.h"
+#include "../src/lprefix.h"
 
 
 #include <stdio.h>
@@ -16,10 +16,10 @@
 
 #include <signal.h>
 
-#include "lua.h"
+#include "../src/lua.h"
 
-#include "lauxlib.h"
-#include "lualib.h"
+#include "../src/lauxlib.h"
+#include "../src/lualib.h"
 
 
 #if !defined(LUA_PROGNAME)

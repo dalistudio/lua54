@@ -24,7 +24,7 @@
 #include "lstate.h"
 
 
-
+// 新建C的闭包函数
 CClosure *luaF_newCclosure (lua_State *L, int nupvals) {
   GCObject *o = luaC_newobj(L, LUA_VCCL, sizeCclosure(nupvals));
   CClosure *c = gco2ccl(o);
@@ -32,7 +32,7 @@ CClosure *luaF_newCclosure (lua_State *L, int nupvals) {
   return c;
 }
 
-
+// 新建Lua的闭包函数
 LClosure *luaF_newLclosure (lua_State *L, int nupvals) {
   GCObject *o = luaC_newobj(L, LUA_VLCL, sizeLclosure(nupvals));
   LClosure *c = gco2lcl(o);
@@ -249,7 +249,7 @@ void luaF_close (lua_State *L, StkId level, int status, int yy) {
   }
 }
 
-
+// 新建原型
 Proto *luaF_newproto (lua_State *L) {
   GCObject *o = luaC_newobj(L, LUA_VPROTO, sizeof(Proto));
   Proto *f = gco2p(o);
@@ -257,11 +257,11 @@ Proto *luaF_newproto (lua_State *L) {
   f->sizek = 0;
   f->p = NULL;
   f->sizep = 0;
-  f->code = NULL;
-  f->sizecode = 0;
-  f->lineinfo = NULL;
-  f->sizelineinfo = 0;
-  f->abslineinfo = NULL;
+  f->code = NULL; // 代码
+  f->sizecode = 0; // 代码大小
+  f->lineinfo = NULL; // 行号表
+  f->sizelineinfo = 0; // 行号大小
+  f->abslineinfo = NULL; // 
   f->sizeabslineinfo = 0;
   f->upvalues = NULL;
   f->sizeupvalues = 0;
@@ -276,7 +276,7 @@ Proto *luaF_newproto (lua_State *L) {
   return f;
 }
 
-
+// 释放原型
 void luaF_freeproto (lua_State *L, Proto *f) {
   luaM_freearray(L, f->code, f->sizecode);
   luaM_freearray(L, f->p, f->sizep);

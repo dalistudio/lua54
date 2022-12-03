@@ -21,11 +21,11 @@
 
 
 typedef struct {
-  lua_State *L;
-  lua_Writer writer;
-  void *data;
-  int strip;
-  int status;
+  lua_State *L; // 状态机
+  lua_Writer writer; // 写入者
+  void *data; // 数据
+  int strip; // 删除调试信息
+  int status; // 状态
 } DumpState;
 
 
@@ -38,19 +38,19 @@ typedef struct {
 
 #define dumpLiteral(D, s)	dumpBlock(D,s,sizeof(s) - sizeof(char))
 
-
+// 转储块
 static void dumpBlock (DumpState *D, const void *b, size_t size) {
   if (D->status == 0 && size > 0) {
-    lua_unlock(D->L);
+    lua_unlock(D->L); // 解锁
     D->status = (*D->writer)(D->L, b, size, D->data);
-    lua_lock(D->L);
+    lua_lock(D->L); // 上锁
   }
 }
 
 
 #define dumpVar(D,x)		dumpVector(D,&x,1)
 
-
+// 转储字节
 static void dumpByte (DumpState *D, int y) {
   lu_byte x = (lu_byte)y;
   dumpVar(D, x);
@@ -60,6 +60,7 @@ static void dumpByte (DumpState *D, int y) {
 /* dumpInt Buff Size */
 #define DIBS    ((sizeof(size_t) * 8 / 7) + 1)
 
+// 转储大小
 static void dumpSize (DumpState *D, size_t x) {
   lu_byte buff[DIBS];
   int n = 0;
@@ -71,22 +72,22 @@ static void dumpSize (DumpState *D, size_t x) {
   dumpVector(D, buff + DIBS - n, n);
 }
 
-
+// 转储整数
 static void dumpInt (DumpState *D, int x) {
   dumpSize(D, x);
 }
 
-
+// 转储数值
 static void dumpNumber (DumpState *D, lua_Number x) {
   dumpVar(D, x);
 }
 
-
+// 转储整数
 static void dumpInteger (DumpState *D, lua_Integer x) {
   dumpVar(D, x);
 }
 
-
+// 转储字符串
 static void dumpString (DumpState *D, const TString *s) {
   if (s == NULL)
     dumpSize(D, 0);
@@ -98,7 +99,7 @@ static void dumpString (DumpState *D, const TString *s) {
   }
 }
 
-
+// 转储代码
 static void dumpCode (DumpState *D, const Proto *f) {
   dumpInt(D, f->sizecode);
   dumpVector(D, f->code, f->sizecode);
@@ -107,6 +108,7 @@ static void dumpCode (DumpState *D, const Proto *f) {
 
 static void dumpFunction(DumpState *D, const Proto *f, TString *psource);
 
+// 转储常量
 static void dumpConstants (DumpState *D, const Proto *f) {
   int i;
   int n = f->sizek;
@@ -132,7 +134,7 @@ static void dumpConstants (DumpState *D, const Proto *f) {
   }
 }
 
-
+// 转储原型
 static void dumpProtos (DumpState *D, const Proto *f) {
   int i;
   int n = f->sizep;
@@ -141,7 +143,7 @@ static void dumpProtos (DumpState *D, const Proto *f) {
     dumpFunction(D, f->p[i], f->source);
 }
 
-
+// 转储上值
 static void dumpUpvalues (DumpState *D, const Proto *f) {
   int i, n = f->sizeupvalues;
   dumpInt(D, n);
@@ -152,7 +154,7 @@ static void dumpUpvalues (DumpState *D, const Proto *f) {
   }
 }
 
-
+// 转储调试
 static void dumpDebug (DumpState *D, const Proto *f) {
   int i, n;
   n = (D->strip) ? 0 : f->sizelineinfo;
@@ -177,35 +179,35 @@ static void dumpDebug (DumpState *D, const Proto *f) {
     dumpString(D, f->upvalues[i].name);
 }
 
-
+// 转储函数
 static void dumpFunction (DumpState *D, const Proto *f, TString *psource) {
   if (D->strip || f->source == psource)
     dumpString(D, NULL);  /* no debug info or same source as its parent 没有调试信息或与其父级相同的源 */
   else
-    dumpString(D, f->source);
-  dumpInt(D, f->linedefined);
-  dumpInt(D, f->lastlinedefined);
-  dumpByte(D, f->numparams);
-  dumpByte(D, f->is_vararg);
-  dumpByte(D, f->maxstacksize);
-  dumpCode(D, f);
-  dumpConstants(D, f);
-  dumpUpvalues(D, f);
-  dumpProtos(D, f);
-  dumpDebug(D, f);
+    dumpString(D, f->source); // 源文件名
+  dumpInt(D, f->linedefined); // 开始行号
+  dumpInt(D, f->lastlinedefined); // 最后行号
+  dumpByte(D, f->numparams); // 固定参数个数
+  dumpByte(D, f->is_vararg); // 是否是 vararg 函数
+  dumpByte(D, f->maxstacksize); // 寄存器数量
+  dumpCode(D, f); // 指令表
+  dumpConstants(D, f); // 常量表
+  dumpUpvalues(D, f); // 上值表
+  dumpProtos(D, f); // 子函数原型
+  dumpDebug(D, f); // 调试
 }
 
-
+// 转储文件头
 static void dumpHeader (DumpState *D) {
-  dumpLiteral(D, LUA_SIGNATURE);
-  dumpByte(D, LUAC_VERSION);
-  dumpByte(D, LUAC_FORMAT);
-  dumpLiteral(D, LUAC_DATA);
-  dumpByte(D, sizeof(Instruction));
-  dumpByte(D, sizeof(lua_Integer));
-  dumpByte(D, sizeof(lua_Number));
-  dumpInteger(D, LUAC_INT);
-  dumpNumber(D, LUAC_NUM);
+  dumpLiteral(D, LUA_SIGNATURE); // 魔术字
+  dumpByte(D, LUAC_VERSION); // 版本
+  dumpByte(D, LUAC_FORMAT); // 格式
+  dumpLiteral(D, LUAC_DATA); // LUA诞生年份1993
+  dumpByte(D, sizeof(Instruction)); // 指令集
+  dumpByte(D, sizeof(lua_Integer)); // 整数
+  dumpByte(D, sizeof(lua_Number)); // 数值（浮点）
+  dumpInteger(D, LUAC_INT); // 验证整数
+  dumpNumber(D, LUAC_NUM); // 验证浮点
 }
 
 
